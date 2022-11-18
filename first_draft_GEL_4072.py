@@ -166,7 +166,6 @@ def plot_emg_and_frequency_content(signal, fs):
     time_step = 1/fs
     freqs = np.fft.fftfreq(signal.size, time_step)
     idx = np.argsort(freqs)
-    print(np.max(signal), np.min(ps[idx]))
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(5, 3))
     axes[0].plot(signal)
     axes[0].set_title('EMG signal')
@@ -178,9 +177,9 @@ def plot_emg_and_frequency_content(signal, fs):
 
     plt.show()
     return
-plot_emg_and_frequency_content(gesture_0_0[6], 1000)
+#plot_emg_and_frequency_content(gesture_0_0[6], 1000)
 
-
+'''
 path = 'all_data/data_2_electrode_GEL_4072/'
 
 classes = [0, 1, 2, 3, 4, 5]
@@ -198,6 +197,6 @@ for c in classes:
   plt.scatter([f[feat_x] for f in features_set[ind]], [f[feat_y] for f in features_set[ind]], label='Class '+str(c))
 plt.legend()
 plt.show()
-
+'''
 
 
