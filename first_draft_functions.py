@@ -8,43 +8,43 @@ from sklearn.model_selection import RepeatedKFold, train_test_split
 
 
 
-def getMAV(x):
+def getMAV(x, axis=None):
     '''
     Computes the Mean Absolute Value (MAV)
     :param x: EMG signal vector as [1-D numpy array]
     :return: Mean Absolute Value as [float]
     '''
-    MAV = np.mean(np.abs(x))
+    MAV = np.mean(np.abs(x), axis)
     return MAV
 
-def getRMS(x):
+def getRMS(x, axis=None):
     '''
     Computes the Root Mean Square value (RMS)
     :param x: EMG signal vector as [1-D numpy array]
     :return: Root Mean Square value as [float]
     '''
-    RMS = np.sqrt(np.mean(x**2))
+    RMS = np.sqrt(np.mean(x**2, axis))
     return RMS
 
-def getVar(x):
+def getVar(x, axis=None):
     '''
     Computes the Variance of EMG (Var)
     :param x: EMG signal vector as [1-D numpy array]
     :return: Variance of EMG as [float]
     '''
-    N = np.size(x)
-    Var = (1/(N-1))*np.sum(x**2)
+    N = np.shape(x)[-1]
+    Var = (1/(N-1))*np.sum(x**2, axis)
     return Var
 
-def getSD(x):
+def getSD(x, axis=None):
     '''
     Computes the Standard Deviation (SD)
     :param x: EMG signal vector as [1-D numpy array]
     :return: Standard Deviation as [float]
     '''
-    N = np.size(x)
-    xx = np.mean(x)
-    SD = np.sqrt(1/(N-1)*np.sum((x-xx)**2))
+    N = np.shape(x)[-1]
+    xx = np.mean(x, axis)
+    SD = np.sqrt(1/(N-1)*np.sum((x-xx)**2, axis))
     return SD
 
 def getZC(x, threshold=0):
