@@ -2,6 +2,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 from sklearn import preprocessing
+plt.rcParams.update({'font.size': 16})
 
 class Electromyogram_analysis:
     """
@@ -118,7 +119,6 @@ class Electromyogram_analysis:
         self.emg_data = {'data' : data, 'target' : target, 'mav' : mav_data, 'rms' : rms_data, 'var' : var_data, 'sd' : sd_data}
 
 
-    
     def format_mat_files(self):
         """ format mat files and makes sure files ext are .mat """
         assert self.f_types == 'mat'
