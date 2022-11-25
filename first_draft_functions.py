@@ -87,7 +87,7 @@ def segment_dataset(filepath, window_length=200, cha0=6, cha1=17, classes=None):
         metaData = fileName.split('-')      # [0]: Gesture/Label, [1]: Trial
 
         if np.in1d(int(metaData[0]), classes):
-          data_read_ch0 = np.loadtxt(filepath+i, delimiter=',')[cha0]  # Choosing channel 6 as first channel for this exercise
+          data_read_ch0 = np.loadtxt(filepath+i, delimiter=',')[cha0] # Choosing channel 6 as first channel for this exercise
           data_read_ch1 = np.loadtxt(filepath+i, delimiter=',')[cha1] # Choosing channel 17 as second channel for this exercise
 
           len_data = len(data_read_ch0)
@@ -150,4 +150,3 @@ def plot_emg_and_frequency_content(signal, fs):
     fig.tight_layout()
 
     plt.show()
-    return
