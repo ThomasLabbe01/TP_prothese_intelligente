@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import matplotlib.pyplot as plt
+from sklearn import preprocessing
 
 class Electromyogram_analysis:
     """
@@ -37,7 +38,7 @@ class Electromyogram_analysis:
         return RMS
     
     
-    def getVar(self, x, axis=None):
+    def getVAR(self, x, axis=None):
         """
         Computes the Variance of EMG (Var)
         :param x: EMG signal vector as [1-D numpy array]
@@ -60,49 +61,58 @@ class Electromyogram_analysis:
         return SD
 
 
-    def int_to_mvmnt_csv(self, target):
+    def int_to_mvmnt_csv(self):
         """description"""
         assert self.f_types == 'csv'
         mvmnts = {0: 'Closed fist', 1: 'Thumb up', 2: 'Tri-pod pinch', 3: 'Neutral hand position', 4: 'Fine pinch (index+thumb)', 5: 'Pointed index'}
-        return mvmnts.get(target)
+        return mvmnts.get(self.target)
     
     
-    def format_csv_files(self, window_length=150, cha0=6, cha1=17, classes=None):
+    def format_csv_files(self, window_length=150, classes=None):
         """ format csv files and makes sure files ext are .csv """
         assert self.f_types == 'csv'
         
         list_of_csv_files = os.listdir(self.path)
-        dict_data = {'mav' : [], 'rms' : [], 'var' : [], 'sd' : [], 'target' : []}
-        data = []
+        target = []
+
         for file in list_of_csv_files:
+            """ Create target array and figure out shape of data"""
             # file names : xxx-yyy
             # xxx : Mouvement
             # yyy : trial
-            data_read_ch0 = np.loadtxt(self.path + '/' + file, delimiter=',')[cha0] # Choosing channel 6 as first channel for this exercise
-            data_read_ch1 = np.loadtxt(self.path + '/' + file, delimiter=',')[cha1] # Choosing channel 17 as second channel for this exercise
-
-            len_data = len(data_read_ch0)
+            data_read = np.loadtxt(self.path + '/' + file, delimiter=',')
+            len_data = np.shape(data_read)[1]
             n_window = int(len_data/window_length)
+            target += [int(file[0:3])]*n_window
 
-            data_windows_ch0 = [data_read_ch0[w*window_length:w*window_length+window_length] for w in range(n_window)]
-            data_windows_ch1 = [data_read_ch1[w*window_length:w*window_length+window_length] for w in range(n_window)]
-
-            data += [(a, b) for a, b in zip(data_windows_ch0, data_windows_ch1)]
-
-            #dict_data['mav'] += getMAV()
-
-            print(self.getMAV(data, axis=0))
-
-            # Comment calculer les différentes métriques ici
-
-            #dict_data['mav'].append(getMAV(emg_signals, axis=0).tolist())
-            #dict_data['rms'].append(getRMS(emg_signals, axis=0).tolist())
-            #dict_data['var'].append(getVar(emg_signals, axis=0).tolist())
-            #dict_data['sd'].append(getSD(emg_signals, axis=0).tolist())
-            #dict_data['target'] += [int(file[0:3])]*n_window
-
-        return data
+        n_row = np.shape(target)[0]
+        n_col = np.shape(data_read)[0]
+        data = [[[]]*n_col]*n_row
+        count = 0
+        for file in list_of_csv_files:
+            """ fill data. data[0][1] : emg # 0 of electrode 1, it has a size = window_length """
+            data_read = np.loadtxt(self.path + '/' + file, delimiter=',')
+            len_data = np.shape(data_read)[1]
+            n_window = int(len_data/window_length)
+            for w in range(n_window):
+                for electrode in range(n_col):
+                    data[w+count][electrode] = data_read[electrode][w*window_length:w*window_length+window_length]
+            count += w
+ 
+        self.data = data
+        self.target = target
     
+    def create_features_dataset(self):
+        """description"""
+        #features_data = {'ch0' : {'mav' : [], 'rms' : [], 'var' : [], 'sd' : []}, 'ch1' : {'mav' : [], 'rms' : [], 'var' : [], 'sd' : []}}
+        for d in self.data:
+            features_data['mav'] += [self.getMAV(d[0])]
+            features_data['rms'] += [self.getRMS(d[0])]
+            features_data['var'] += [self.getVAR(d[0])]
+            features_data['sd'] += [self.getSD(d[0])]
+        self.features_data = features_data
+
+
     
     def format_mat_files(self):
         """ format mat files and makes sure files ext are .mat """
@@ -138,6 +148,5 @@ class Electromyogram_analysis:
 path = 'all_data/data_2_electrode_GEL_4072'
 f_types = 'csv'
 test = Electromyogram_analysis(path, f_types)
-data = test.format_csv_files()
-print(np.shape(data))
-print(data[0])
+test.format_csv_files()
+
