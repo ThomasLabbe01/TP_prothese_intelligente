@@ -61,20 +61,19 @@ class Electromyogram_analysis:
         return SD
 
 
-    def int_to_mvmnt_csv(self):
+    def int_to_mvmnt_csv(self, mvmnt):
         """description"""
         assert self.f_types == 'csv'
         mvmnts = {0: 'Closed fist', 1: 'Thumb up', 2: 'Tri-pod pinch', 3: 'Neutral hand position', 4: 'Fine pinch (index+thumb)', 5: 'Pointed index'}
-        return mvmnts.get(self.target)
+        return mvmnts.get(mvmnt)
     
     
-    def format_csv_files(self, window_length=150, classes=None):
+    def format_csv_files(self, window_length=200):
         """ format csv files and makes sure files ext are .csv """
         assert self.f_types == 'csv'
         
         list_of_csv_files = os.listdir(self.path)
-        target = []
-
+        n_row = 0
         for file in list_of_csv_files:
             """ Create target array and figure out shape of data"""
             # file names : xxx-yyy
@@ -83,11 +82,16 @@ class Electromyogram_analysis:
             data_read = np.loadtxt(self.path + '/' + file, delimiter=',')
             len_data = np.shape(data_read)[1]
             n_window = int(len_data/window_length)
-            target += [int(file[0:3])]*n_window
+            n_row += n_window
 
-        n_row = np.shape(target)[0]
         n_col = np.shape(data_read)[0]
+
         data = [[[]]*n_col]*n_row
+        target = []
+        mav_data = np.zeros((n_row, n_col))
+        rms_data = np.zeros((n_row, n_col))
+        var_data = np.zeros((n_row, n_col))
+        sd_data = np.zeros((n_row, n_col))
         count = 0
         for file in list_of_csv_files:
             """ fill data. data[0][1] : emg # 0 of electrode 1, it has a size = window_length """
@@ -96,21 +100,22 @@ class Electromyogram_analysis:
             n_window = int(len_data/window_length)
             for w in range(n_window):
                 for electrode in range(n_col):
-                    data[w+count][electrode] = data_read[electrode][w*window_length:w*window_length+window_length]
+                    segment = data_read[electrode][w*window_length:w*window_length+window_length]
+                    data[w+count][electrode] = segment
+
+                    mav_data[w+count][electrode] = self.getMAV(segment)
+                    rms_data[w+count][electrode] = self.getRMS(segment)
+                    var_data[w+count][electrode] = self.getVAR(segment)
+                    sd_data[w+count][electrode] = self.getSD(segment)
+                target.append(int(file[0:3]))
             count += w
- 
-        self.data = data
-        self.target = target
-    
-    def create_features_dataset(self):
-        """description"""
-        #features_data = {'ch0' : {'mav' : [], 'rms' : [], 'var' : [], 'sd' : []}, 'ch1' : {'mav' : [], 'rms' : [], 'var' : [], 'sd' : []}}
-        for d in self.data:
-            features_data['mav'] += [self.getMAV(d[0])]
-            features_data['rms'] += [self.getRMS(d[0])]
-            features_data['var'] += [self.getVAR(d[0])]
-            features_data['sd'] += [self.getSD(d[0])]
-        self.features_data = features_data
+
+        mav_data = preprocessing.scale(mav_data)
+        rms_data = preprocessing.scale(rms_data)
+        var_data = preprocessing.scale(var_data)
+        sd_data = preprocessing.scale(sd_data)
+
+        self.emg_data = {'data' : data, 'target' : target, 'mav' : mav_data, 'rms' : rms_data, 'var' : var_data, 'sd' : sd_data}
 
 
     
@@ -139,14 +144,45 @@ class Electromyogram_analysis:
         plt.show()
 
 
-    def plot_hitogram_mvmnts(self, dataset):
+    def plot_hitogram_mvmnts(self):
         """ Affiche un histogramme représentant la répartition des mouvements provenant du dataset"""
-        return
-    
+        target = self.emg_data.get('target')
+        all_classes = np.unique(target)
+        classes_count = np.zeros(np.size(all_classes))
+        fig, subfig = plt.subplots()
+        bins = []
+        for i in all_classes:
+            bins.append(i - 0.25)
+            bins.append(i + 0.25)
+        for i in target:
+            classes_count[i] += 1
+        subfig.hist(all_classes, bins=bins, weights=classes_count)
+        subfig.set_xlabel('Classe du mouvement')
+        subfig.set_ylabel("Nombre d'occurences [-]")
+        subfig.set_title(f'''Histogramme représentant le nombre de d'occurances de chaque classe dans {self.path.split('/')[1]}''')
+        plt.show() 
 
 
-path = 'all_data/data_2_electrode_GEL_4072'
-f_types = 'csv'
-test = Electromyogram_analysis(path, f_types)
-test.format_csv_files()
+    def plot_jeu_2_electrodes(self, ch0=6, ch1 = 17, classes='all', legend_with_name=False):
+        target = self.emg_data.get('target')
+        if classes == 'all':
+            classes = np.unique(target)
+        else:
+            classes = np.array(classes)
+        pairs = [(i, j) for i in range(2) for j in range(2)]
+        stats = ['mav', 'rms', 'var', 'sd']
+        fig, subfigs = plt.subplots(2, 2, tight_layout=True)
+        for count, (f1, f2) in enumerate(pairs):
+            for c in classes:
+                ind = np.where(target == c)
+                if legend_with_name is True:
+                    label = f'{c} : {self.int_to_mvmnt_csv(c)}'
+                else:
+                    label = f'Class : {c}'
+                subfigs[(f1, f2)].scatter(self.emg_data.get(stats[count])[ind, ch0], self.emg_data.get(stats[count])[ind, ch1], label=label)
+                subfigs[(f1, f2)].set_xlabel(f'Channel {ch0}')
+                subfigs[(f1, f2)].set_ylabel(f'Channel {ch1}')
+                subfigs[(f1, f2)].set_title(f'Selected feature : {stats[count]}')
+                subfigs[(f1, f2)].legend()
+        plt.show()
 
