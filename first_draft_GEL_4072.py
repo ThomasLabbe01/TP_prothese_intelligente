@@ -37,7 +37,7 @@ classes = [0, 1, 2, 3, 4, 5]
 
 data, labels = segment_dataset(path, window_length=150, cha0=6, cha1=17, classes=classes)
 print(labels)
-'''
+
 features_set = features_dataset(data, MAV=True, RMS=True, Var=True, SD=True, ZC=True, SSC=True)
 features_set = preprocessing.scale(features_set) # preprocessing module imported from sklearn
 
@@ -48,9 +48,8 @@ feat_y = 3
 
 for c in classes:
   ind = np.where(np.array(labels)==c)
-  plt.scatter([f[feat_x] for f in features_set[ind]], [f[feat_y] for f in features_set[ind]], label='Class '+str(c))
+  plt.scatter(features_set[ind, feat_x], features_set[ind, feat_y], label='Class '+str(c))
 plt.legend()
 plt.show()
 
 
-'''

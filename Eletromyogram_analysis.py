@@ -94,22 +94,22 @@ class Electromyogram_analysis:
         sd_data = np.zeros((n_row, n_col))
         count = 0
         for file in list_of_csv_files:
-            """ fill data. data[0][1] : emg # 0 of electrode 1, it has a size = window_length """
+            """ fill self.emg_data : [0][1] : emg # 0 of electrode 1, it has a size = window_length """
             data_read = np.loadtxt(self.path + '/' + file, delimiter=',')
             len_data = np.shape(data_read)[1]
             n_window = int(len_data/window_length)
             for w in range(n_window):
                 for electrode in range(n_col):
                     segment = data_read[electrode][w*window_length:w*window_length+window_length]
-                    data[w+count][electrode] = segment
 
+                    data[w+count][electrode] = segment
                     mav_data[w+count][electrode] = self.getMAV(segment)
                     rms_data[w+count][electrode] = self.getRMS(segment)
                     var_data[w+count][electrode] = self.getVAR(segment)
                     sd_data[w+count][electrode] = self.getSD(segment)
                 target.append(int(file[0:3]))
-            count += w
-
+            count += w + 1
+        print(target)
         mav_data = preprocessing.scale(mav_data)
         rms_data = preprocessing.scale(rms_data)
         var_data = preprocessing.scale(var_data)
