@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import matplotlib.pyplot as plt
+import scipy
 from sklearn import preprocessing
 plt.rcParams.update({'font.size': 16})
 
@@ -110,7 +111,7 @@ class Electromyogram_analysis:
                     sd_data[w+count][electrode] = self.getSD(segment)
                 target.append(int(file[0:3]))
             count += w + 1
-        print(target)
+
         mav_data = preprocessing.scale(mav_data)
         rms_data = preprocessing.scale(rms_data)
         var_data = preprocessing.scale(var_data)
@@ -119,10 +120,27 @@ class Electromyogram_analysis:
         self.emg_data = {'data' : data, 'target' : target, 'mav' : mav_data, 'rms' : rms_data, 'var' : var_data, 'sd' : sd_data}
 
 
-    def format_mat_files(self):
+    def format_mat_files(self, window_length=500):
         """ format mat files and makes sure files ext are .mat """
         assert self.f_types == 'mat'
-        return
+        
+        emg_data = {}
+
+        list_of_data = os.listdir(self.path)
+        for i in range(len(list_of_data)):
+            subject = list_of_data[i][0:3]
+            mvmnt = list_of_data[i][4:7]
+            if emg_data.get(subject) == None:
+                emg_data[subject] = {'data' : [], 'mav' : [], 'rms' : [], 'var' : [], 'sd' : [], 'target' : []} 
+
+            # TO DO : ajouter la semgmentation des signaux
+            emg_signals = scipy.io.loadmat(self.path + '/' + list_of_data[i]).get('data')
+            
+            emg_data[subject]['mav'].append(self.getMAV(emg_signals, axis=0).tolist())
+            emg_data[subject]['rms'].append(self.getRMS(emg_signals, axis=0).tolist())
+            emg_data[subject]['var'].append(self.getVAR(emg_signals, axis=0).tolist())
+            emg_data[subject]['sd'].append(self.getSD(emg_signals, axis=0).tolist())
+            emg_data[subject]['target'].append(int(mvmnt))
 
 
     def plot_emg_signal_and_fft(self, emg_signal):
