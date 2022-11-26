@@ -3,6 +3,7 @@ import os
 import matplotlib.pyplot as plt
 import scipy.io
 from sklearn import preprocessing
+import json
 plt.rcParams.update({'font.size': 16})
 
 class Electromyogram_analysis:
@@ -120,10 +121,15 @@ class Electromyogram_analysis:
         self.emg_data = {'data' : data, 'target' : target, 'mav' : mav_data, 'rms' : rms_data, 'var' : var_data, 'sd' : sd_data}
 
 
-    def format_mat_files(self, window_length=150):
+    def format_mat_files(self, window_length=150, name_of_txt_file='first_data_set_', overwrite=False):
         """ format mat files and makes sure files ext are .mat """
         assert self.f_types == 'mat'
-        
+
+        path_levels = self.path.split('/')
+        save_path = f'{path_levels[0]}/{path_levels[1]}/{name_of_txt_file}{str(window_length)}.txt'
+        if overwrite is False:
+            assert os.path.exists(save_path) is False, f"The file {name_of_txt_file}{str(window_length)} already exists, no need to format"
+
         emg_data = {}
 
         list_of_data = os.listdir(self.path)
@@ -153,7 +159,9 @@ class Electromyogram_analysis:
                     emg_data[subject]['target'].append(mvmnt)
                 emg_data[subject]['data'].append(data)
         self.emg_data = emg_data
-        # Create a .txt file to make things go faster, if the file doesnt exist, create another one, this functions has not been checked yet
+
+        with open(save_path, 'w+') as data_file:
+            data_file.write(json.dumps(emg_data))
 
     def plot_emg_signal_and_fft(self, emg_signal):
         """ Affiche une figure contenant le signal emg à gauche et sa transformée de fourier à droite """

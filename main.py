@@ -11,6 +11,5 @@ from Eletromyogram_analysis import Electromyogram_analysis
 path = 'all_data/data_CapgMyo/matlab_format'
 f_types = 'mat'
 test = Electromyogram_analysis(path, f_types)
-test.format_mat_files(window_length=300)
-print(test.emg_data.keys())
-test.plot_hitogram_mvmnts()
+test.format_mat_files(window_length=300, name_of_txt_file = 'first_data_set_', overwrite = True)
+#test.plot_hitogram_mvmnts()
