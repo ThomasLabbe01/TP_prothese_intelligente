@@ -135,7 +135,7 @@ class Electromyogram_analysis:
 
             # TO DO : ajouter la semgmentation des signaux
             emg_signals = scipy.io.loadmat(self.path + '/' + list_of_data[i]).get('data')
-            
+
             emg_data[subject]['mav'].append(self.getMAV(emg_signals, axis=0).tolist())
             emg_data[subject]['rms'].append(self.getRMS(emg_signals, axis=0).tolist())
             emg_data[subject]['var'].append(self.getVAR(emg_signals, axis=0).tolist())
@@ -198,9 +198,13 @@ class Electromyogram_analysis:
                 else:
                     label = f'Class : {c}'
                 subfigs[(f1, f2)].scatter(self.emg_data.get(stats[count])[ind, ch0], self.emg_data.get(stats[count])[ind, ch1], label=label)
-                subfigs[(f1, f2)].set_xlabel(f'Channel {ch0}')
-                subfigs[(f1, f2)].set_ylabel(f'Channel {ch1}')
+                subfigs[(f1, f2)].set_xlabel(f'Electrode #{ch0}')
+                subfigs[(f1, f2)].set_ylabel(f'Electrode #{ch1}')
                 subfigs[(f1, f2)].set_title(f'Selected feature : {stats[count]}')
                 subfigs[(f1, f2)].legend()
         plt.show()
 
+
+    def calculate_and_plot_score_vs_window(self):
+        """ Calculer et afficher la précision d'un classement en fonction du temps de traitement """
+        return
