@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import matplotlib.pyplot as plt
-import scipy
+import scipy.io
 from sklearn import preprocessing
 plt.rcParams.update({'font.size': 16})
 
@@ -120,7 +120,7 @@ class Electromyogram_analysis:
         self.emg_data = {'data' : data, 'target' : target, 'mav' : mav_data, 'rms' : rms_data, 'var' : var_data, 'sd' : sd_data}
 
 
-    def format_mat_files(self, window_length=500):
+    def format_mat_files(self, window_length=150):
         """ format mat files and makes sure files ext are .mat """
         assert self.f_types == 'mat'
         
@@ -128,20 +128,32 @@ class Electromyogram_analysis:
 
         list_of_data = os.listdir(self.path)
         for i in range(len(list_of_data)):
-            subject = list_of_data[i][0:3]
-            mvmnt = list_of_data[i][4:7]
+            if i % 50 == 0:
+                print(f'{np.round(100*i/len(list_of_data), 2)}%')
+            subject = int(list_of_data[i][0:3])
+            mvmnt = int(list_of_data[i][4:7])
             if emg_data.get(subject) == None:
                 emg_data[subject] = {'data' : [], 'mav' : [], 'rms' : [], 'var' : [], 'sd' : [], 'target' : []} 
 
             # TO DO : ajouter la semgmentation des signaux
             emg_signals = scipy.io.loadmat(self.path + '/' + list_of_data[i]).get('data')
+            n_col = np.shape(emg_signals)[1]
+            n_window = int(np.shape(emg_signals)[0]/window_length)
+            for w in range(n_window):
+                data = []
+                for electrode in range(n_col):
+                    segment = emg_signals[electrode][w*window_length:w*window_length+window_length]
 
-            emg_data[subject]['mav'].append(self.getMAV(emg_signals, axis=0).tolist())
-            emg_data[subject]['rms'].append(self.getRMS(emg_signals, axis=0).tolist())
-            emg_data[subject]['var'].append(self.getVAR(emg_signals, axis=0).tolist())
-            emg_data[subject]['sd'].append(self.getSD(emg_signals, axis=0).tolist())
-            emg_data[subject]['target'].append(int(mvmnt))
+                    data += [segment]
 
+                    emg_data[subject]['mav'].append(self.getMAV(segment))
+                    emg_data[subject]['rms'].append(self.getRMS(segment))
+                    emg_data[subject]['var'].append(self.getVAR(segment))
+                    emg_data[subject]['sd'].append(self.getSD(segment))
+                    emg_data[subject]['target'].append(mvmnt)
+                emg_data[subject]['data'].append(data)
+        self.emg_data = emg_data
+        # Create a .txt file to make things go faster, if the file doesnt exist, create another one, this functions has not been checked yet
 
     def plot_emg_signal_and_fft(self, emg_signal):
         """ Affiche une figure contenant le signal emg à gauche et sa transformée de fourier à droite """
