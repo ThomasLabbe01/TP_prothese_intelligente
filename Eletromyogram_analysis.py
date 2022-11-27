@@ -74,7 +74,7 @@ class Electromyogram_analysis:
     def format_csv_files(self, window_length=200):
         """ format csv files and makes sure files ext are .csv """
         assert self.f_types == 'csv'
-        
+        subject = '0'
         list_of_csv_files = os.listdir(self.path)
         n_row = 0
         for file in list_of_csv_files:
@@ -118,7 +118,7 @@ class Electromyogram_analysis:
         var_data = preprocessing.scale(var_data)
         sd_data = preprocessing.scale(sd_data)
 
-        self.emg_data = {'data' : data, 'target' : target, 'mav' : mav_data, 'rms' : rms_data, 'var' : var_data, 'sd' : sd_data}
+        self.emg_data = {subject : {'data' : data, 'target' : target, 'mav' : mav_data, 'rms' : rms_data, 'var' : var_data, 'sd' : sd_data}}
 
 
     def format_mat_files(self, window_length=150, name_of_txt_file='first_data_set_', overwrite=False):
@@ -126,49 +126,60 @@ class Electromyogram_analysis:
         assert self.f_types == 'mat'
 
         path_levels = self.path.split('/')
-        save_path = f'{path_levels[0]}/{path_levels[1]}/{name_of_txt_file}{str(window_length)}.txt'
-        if overwrite is False:
-            assert os.path.exists(save_path) is False, f"The file {name_of_txt_file}{str(window_length)} already exists, no need to format"
+        save_path = f'{path_levels[0]}/{path_levels[1]}/txt_files/{name_of_txt_file}{str(window_length)}.txt'
+        if overwrite is False and os.path.exists(save_path) is True:
+            print(f"The file {name_of_txt_file}{str(window_length)} already exists, no need to format")
+            self.emg_data = json.load(open(save_path))
+        if overwrite is True or os.path.exists(save_path) is False:
 
-        emg_data = {}
+            emg_data = {}
 
-        list_of_data = os.listdir(self.path)
-        for i in range(len(list_of_data)):
-            if i % 50 == 0:
-                print(f'{np.round(100*i/len(list_of_data), 2)}%')
-            subject = int(list_of_data[i][0:3])
-            mvmnt = int(list_of_data[i][4:7])
-            if emg_data.get(subject) == None:
-                emg_data[subject] = {'data' : [], 'mav' : [], 'rms' : [], 'var' : [], 'sd' : [], 'target' : []} 
+            list_of_data = os.listdir(self.path)
+            for i in range(len(list_of_data)):
+                if i % 50 == 0:
+                    print(f'{np.round(100*i/len(list_of_data), 2)}%')
+                subject = int(list_of_data[i][0:3])
+                mvmnt = int(list_of_data[i][4:7])
+                if emg_data.get(subject) == None:
+                    emg_data[subject] = {'data' : [], 'mav' : [], 'rms' : [], 'var' : [], 'sd' : [], 'target' : []} 
 
-            # TO DO : ajouter la semgmentation des signaux
-            emg_signals = scipy.io.loadmat(self.path + '/' + list_of_data[i]).get('data')
-            n_col = np.shape(emg_signals)[1]
-            n_window = int(np.shape(emg_signals)[0]/window_length)
-            for w in range(n_window):
-                data = []
-                for electrode in range(n_col):
-                    segment = emg_signals[electrode][w*window_length:w*window_length+window_length]
+                # TO DO : ajouter la semgmentation des signaux
+                emg_signals = scipy.io.loadmat(self.path + '/' + list_of_data[i]).get('data')
+                n_col = np.shape(emg_signals)[1]
 
-                    data += [segment]
+                n_window = int(np.shape(emg_signals)[0]/window_length)
+                for w in range(n_window):
+                    data, mav_data, rms_data, var_data, sd_data = [], [], [], [], []
+                    for electrode in range(n_col):
+                        segment = emg_signals[electrode][w*window_length:w*window_length+window_length]
+                        data += [segment.tolist()]
 
-                    emg_data[subject]['mav'].append(self.getMAV(segment))
-                    emg_data[subject]['rms'].append(self.getRMS(segment))
-                    emg_data[subject]['var'].append(self.getVAR(segment))
-                    emg_data[subject]['sd'].append(self.getSD(segment))
+                        mav_data += [self.getMAV(segment).tolist()]
+                        rms_data += [self.getRMS(segment).tolist()]
+                        var_data += [self.getVAR(segment).tolist()]
+                        sd_data += [self.getSD(segment).tolist()]
+
+
+                    emg_data[subject]['mav'].append(mav_data)
+                    emg_data[subject]['rms'].append(rms_data)
+                    emg_data[subject]['var'].append(var_data)
+                    emg_data[subject]['sd'].append(sd_data)
+                    emg_data[subject]['data'].append(data)
                     emg_data[subject]['target'].append(mvmnt)
-                emg_data[subject]['data'].append(data)
-        self.emg_data = emg_data
 
-        with open(save_path, 'w+') as data_file:
-            data_file.write(json.dumps(emg_data))
+
+            self.emg_data = emg_data
+
+            with open(save_path, 'w+') as data_file:
+                data_file.write(json.dumps(emg_data))
+        
 
     def plot_emg_signal_and_fft(self, emg_signal):
         """ Affiche une figure contenant le signal emg à gauche et sa transformée de fourier à droite """
         # to do : axes : temps, intensité, fréquences, intensité
         ps = np.abs(np.fft.fft(emg_signal))**2
         time_step = 1/self.sample_frequency
-        freqs = np.fft.fftfreq(emg_signal.size, time_step)
+        freqs = np.fft.fftfreq(np.size(emg_signal), time_step)
         idx = np.argsort(freqs)
         fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(5, 3))
         axes[0].plot(emg_signal)
@@ -182,27 +193,34 @@ class Electromyogram_analysis:
         plt.show()
 
 
-    def plot_hitogram_mvmnts(self):
+    def plot_hitogram_mvmnts(self, subject):
         """ Affiche un histogramme représentant la répartition des mouvements provenant du dataset"""
-        target = self.emg_data.get('target')
+        target = self.emg_data[subject].get('target')
         all_classes = np.unique(target)
-        classes_count = np.zeros(np.size(all_classes))
+        classes_count = {}
         fig, subfig = plt.subplots()
         bins = []
-        for i in all_classes:
+        x_coordinates = np.arange(np.size(all_classes))
+        for i in x_coordinates:
             bins.append(i - 0.25)
             bins.append(i + 0.25)
         for i in target:
-            classes_count[i] += 1
-        subfig.hist(all_classes, bins=bins, weights=classes_count)
+            if classes_count.get(i) is None:
+                classes_count[i] = 1
+            else:
+                classes_count[i] += 1
+        plt.setp(subfig, xticks=x_coordinates, xticklabels=all_classes)
+        subfig.bar(x_coordinates, classes_count.values(), width=0.8)
         subfig.set_xlabel('Classe du mouvement')
         subfig.set_ylabel("Nombre d'occurences [-]")
+        subfig.set_xticklabels(all_classes)
+
         subfig.set_title(f'''Histogramme représentant le nombre de d'occurances de chaque classe dans {self.path.split('/')[1]}''')
         plt.show() 
 
 
-    def plot_jeu_2_electrodes(self, ch0=6, ch1 = 17, classes='all', legend_with_name=False):
-        target = self.emg_data.get('target')
+    def plot_jeu_2_electrodes(self, subject, ch0=6, ch1 = 17, classes='all', legend_with_name=False):
+        target = self.emg_data[subject].get('target')
         if classes == 'all':
             classes = np.unique(target)
         else:
@@ -217,12 +235,22 @@ class Electromyogram_analysis:
                     label = f'{c} : {self.int_to_mvmnt_csv(c)}'
                 else:
                     label = f'Class : {c}'
-                subfigs[(f1, f2)].scatter(self.emg_data.get(stats[count])[ind, ch0], self.emg_data.get(stats[count])[ind, ch1], label=label)
+                x = np.array(self.emg_data[subject].get(stats[count]))[ind, ch0]
+                y = np.array(self.emg_data[subject].get(stats[count]))[ind, ch1]
+                subfigs[(f1, f2)].scatter(x, y, label=label)
                 subfigs[(f1, f2)].set_xlabel(f'Electrode #{ch0}')
                 subfigs[(f1, f2)].set_ylabel(f'Electrode #{ch1}')
                 subfigs[(f1, f2)].set_title(f'Selected feature : {stats[count]}')
                 subfigs[(f1, f2)].legend()
         plt.show()
+
+    def normalize_set(self):
+        """ Description """
+        to_norm = ['mav', 'rms', 'var', 'sc']
+        for subject, dict_data in self.emg_data.items():
+            for stat, data in dict_data.items():
+                if stat in to_norm:
+                    self.emg_data[subject][stat] = preprocessing.scale(data)
 
 
     def calculate_and_plot_score_vs_window(self):
