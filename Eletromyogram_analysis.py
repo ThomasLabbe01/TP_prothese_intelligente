@@ -293,7 +293,6 @@ class Electromyogram_analysis:
 
         for clf, subfig in zip(classifiers, subfigs.reshape(-1)):
             clf_name = clf.__class__.__name__
-            print(data, data_set[2])
             clf.fit(data, data_set[2])
             Y = clf.predict(np.c_[xx.ravel(), yy.ravel()])
             Y = Y.reshape(xx.shape)
