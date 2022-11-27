@@ -1,27 +1,30 @@
 from Eletromyogram_analysis import Electromyogram_analysis
 
-#path = 'all_data/data_2_electrode_GEL_4072'
-#f_types = 'csv'
-#test = Electromyogram_analysis(path, f_types)
-#test.format_csv_files(window_length=300)
-#test.plot_emg_signal_and_fft(test.emg_data['0'].get('data')[0][0])
-#test.plot_hitogram_mvmnts('0')
-#test.plot_jeu_2_electrodes(subject='0', ch0=6, ch1=17, classes='all', legend_with_name=False)
 
-#data_set = test.split_data_set(subject='0', method='mav')
-#test.plot_parametric_classifier(data_set, classes='all', ch0=3, ch1=18)
+# GEL_4072
+path_csv = 'all_data/data_2_electrode_GEL_4072'
+f_types_csv = 'csv'
+emg_csv = Electromyogram_analysis(path_csv, f_types_csv)
+emg_csv.format_csv_files(window_length=300)
+data_set_csv = emg_csv.split_data_set(subject='0', method='mav')
+#emg_csv.verify_plots_for_both_dataset()
+
+emg_csv.plot_emg_signal_and_fft(emg_csv.emg_data['0'].get('data')[0][0])
+emg_csv.plot_hitogram_mvmnts('0')
+emg_csv.plot_jeu_2_electrodes(subject='0', ch0=6, ch1=17, classes='all', legend_with_name=False)
+emg_csv.plot_parametric_classifier(data_set_csv, classes='all', ch0=3, ch1=18)
 
 
-path = 'all_data/data_CapgMyo/matlab_format'
-f_types = 'mat'
-test = Electromyogram_analysis(path, f_types)
-test.format_mat_files(window_length=950, name_of_txt_file = 'first_data_set_', overwrite = False)
-test.normalize_set()
-data_set = test.split_data_set(subject='1', method='mav')
-#print(data_set[0][0])
-test.plot_parametric_classifier(data_set, classes=[1, 2, 3, 4, 5], ch0=6,  ch1=81)
-#test.plot_emg_signal_and_fft(test.emg_data['1'].get('data')[0][0])
-#test.plot_hitogram_mvmnts('1')
+# Capgmyo
+path_mat = 'all_data/data_CapgMyo/matlab_format'
+f_types_mat = 'mat'
+emg_mat = Electromyogram_analysis(path_mat, f_types_mat)
+emg_mat.format_mat_files(window_length=950, name_of_txt_file = 'first_data_set_', overwrite = False)
+emg_mat.normalize_set()
+data_set_mat = emg_mat.split_data_set(subject='1', method='mav')
+#emg_mat.verify_plots_for_both_dataset()
 
-#i=1
-#test.plot_jeu_2_electrodes(subject=f'{i}', ch0=50, ch1=125, classes=[1, 2, 3, 4, 5, 6], legend_with_name=False)
+emg_mat.plot_emg_signal_and_fft(emg_mat.emg_data['1'].get('data')[0][0])
+emg_mat.plot_hitogram_mvmnts('1')
+emg_mat.plot_jeu_2_electrodes(subject=f'{1}', ch0=50, ch1=125, classes=[1, 2, 3, 4, 5, 6], legend_with_name=False)
+emg_mat.plot_parametric_classifier(data_set_mat, classes=[1, 2, 3, 4, 6], ch0=1,  ch1=72)

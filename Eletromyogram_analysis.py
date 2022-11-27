@@ -278,10 +278,6 @@ class Electromyogram_analysis:
     def plot_parametric_classifier(self, data_set, ch0=6, ch1=17, classes='all', legend_with_name=False):
         """ Apply parametric classifier on dataset, plot for electrode ch0 and ch1 """
         classifiers = [QuadraticDiscriminantAnalysis(), LinearDiscriminantAnalysis(), GaussianNB(), NearestCentroid()]
-        if classes == 'all':
-            classes = np.unique(data_set[2])
-        else:
-            classes = np.array(classes)
 
         h = 0.02
         x_min, x_max = data_set[0][:, ch0].min() - 1, data_set[0][:, ch0].max() + 1
@@ -289,28 +285,47 @@ class Electromyogram_analysis:
         xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
         data = np.c_[data_set[0][:, ch0], data_set[0][:, ch1]]
 
+        if classes == 'all':
+            classes = np.unique(data_set[2])
+            target = np.array(data_set[2])
+        if classes != 'all':
+            classes = np.array(classes)
+            ind = np.isin(data_set[2], classes)
+            data = data[ind]
+            target = np.array(data_set[2])[ind]
+
+            # modify data_set to only include data from class in classes
+
+
+
+
         fig, subfigs = plt.subplots(2, 2, sharex='all', sharey='all', tight_layout=True)
 
         for clf, subfig in zip(classifiers, subfigs.reshape(-1)):
             clf_name = clf.__class__.__name__
-            clf.fit(data, data_set[2])
+            clf.fit(data, target)
             Y = clf.predict(np.c_[xx.ravel(), yy.ravel()])
             Y = Y.reshape(xx.shape)
 
             subfig.contourf(xx, yy, Y, cmap=plt.cm.Paired, alpha=0.5)   
+            colour_count = 0
             for c in classes:
-                ind = np.where(data_set[2] == c)
+                ind = np.where(target == c)
                 if legend_with_name is True:
                     label = f'{c} : {self.int_to_mvmnt_csv(c)}'
                 else:
                     label = f'Class : {c}'
-                subfig.scatter(data[ind, 0], data[ind, 1], c=self.colors[c], label=label)
+                subfig.scatter(data[ind, 0], data[ind, 1], c=self.colors[colour_count], label=label)
                 subfig.set_xlabel(f'Electrode #{ch0}')
                 subfig.set_ylabel(f'Electrode #{ch1}')
                 subfig.set_title(f'{clf_name} with {self.method}')
                 subfig.legend()
+                colour_count += 1
 
         plt.show()
+
+    def verify_plots_for_both_dataset(self):
+        """ Function that calls previous plot fonctions """
 
 
     def calculate_and_plot_score_vs_window(self):
