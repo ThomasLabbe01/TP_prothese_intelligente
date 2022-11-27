@@ -156,6 +156,7 @@ class Electromyogram_analysis:
 
                 # TO DO : ajouter la semgmentation des signaux
                 emg_signals = scipy.io.loadmat(self.path + '/' + list_of_data[i]).get('data')
+
                 n_col = np.shape(emg_signals)[1]
 
                 n_window = int(np.shape(emg_signals)[0]/window_length)
@@ -255,6 +256,7 @@ class Electromyogram_analysis:
                 subfigs[(f1, f2)].legend()
         plt.show()
 
+
     def normalize_set(self):
         """ Description """
         to_norm = ['mav', 'rms', 'var', 'sc']
@@ -271,6 +273,7 @@ class Electromyogram_analysis:
         y_data = self.emg_data[subject]['target']
         X_train, X_test, y_train, y_test = train_test_split(x_data, y_data, test_size=test_size, random_state=np.random.randint(100, size=1)[0])
         return (X_train, X_test, y_train, y_test)
+
 
     def plot_parametric_classifier(self, data_set, ch0=6, ch1=17, classes='all', legend_with_name=False):
         """ Apply parametric classifier on dataset, plot for electrode ch0 and ch1 """
@@ -290,6 +293,7 @@ class Electromyogram_analysis:
 
         for clf, subfig in zip(classifiers, subfigs.reshape(-1)):
             clf_name = clf.__class__.__name__
+            print(data, data_set[2])
             clf.fit(data, data_set[2])
             Y = clf.predict(np.c_[xx.ravel(), yy.ravel()])
             Y = Y.reshape(xx.shape)
