@@ -195,13 +195,12 @@ class Electromyogram_analysis:
                     self.emg_data[subject][stat] = preprocessing.scale(data)
     
 
-    def create_train_set(self, subject, feature='rms', method='train_test_split', test_size=0.33):
+    def create_train_set(self, subject, feature='rms', test_size=0.33):
         """ Split dataset """
         self.feature = feature
-        if method == 'train_test_split':
-            x_data = self.emg_data[subject][feature]
-            y_data = self.emg_data[subject]['target']
-            X_train, X_test, y_train, y_test = train_test_split(x_data, y_data, test_size=test_size, random_state=np.random.randint(100, size=1)[0])
+        x_data = self.emg_data[subject][feature]
+        y_data = self.emg_data[subject]['target']
+        X_train, X_test, y_train, y_test = train_test_split(x_data, y_data, test_size=test_size, random_state=np.random.randint(100, size=1)[0])
         return (X_train, X_test, y_train, y_test)
 
 
@@ -296,24 +295,6 @@ class Electromyogram_analysis:
         plt.show()
 
 
-    def normalize_set(self):
-        """ Description """
-        to_norm = ['mav', 'rms', 'var', 'sc']
-        for subject, dict_data in self.emg_data.items():
-            for stat, data in dict_data.items():
-                if stat in to_norm:
-                    self.emg_data[subject][stat] = preprocessing.scale(data)
-    
-
-    def split_data_set(self, subject, method='rms', test_size=0.33):
-        """ Split dataset """
-        self.method = method
-        x_data = self.emg_data[subject][method]
-        y_data = self.emg_data[subject]['target']
-        X_train, X_test, y_train, y_test = train_test_split(x_data, y_data, test_size=test_size, random_state=np.random.randint(100, size=1)[0])
-        return (X_train, X_test, y_train, y_test)
-
-
     def plot_parametric_classifier(self, data_set, ch0=6, ch1=17, classes='all', legend_with_name=False):
         """ Apply parametric classifier on dataset, plot for electrode ch0 and ch1 """
         classifiers = [QuadraticDiscriminantAnalysis(), LinearDiscriminantAnalysis(), GaussianNB(), NearestCentroid()]
@@ -332,11 +313,6 @@ class Electromyogram_analysis:
             ind = np.isin(data_set[2], classes)
             data = data[ind]
             target = np.array(data_set[2])[ind]
-
-            # modify data_set to only include data from class in classes
-
-
-
 
         fig, subfigs = plt.subplots(2, 2, sharex='all', sharey='all', tight_layout=True)
 
@@ -357,11 +333,12 @@ class Electromyogram_analysis:
                 subfig.scatter(data[ind, 0], data[ind, 1], c=self.colors[colour_count], label=label)
                 subfig.set_xlabel(f'Electrode #{ch0}')
                 subfig.set_ylabel(f'Electrode #{ch1}')
-                subfig.set_title(f'{clf_name} with {self.method}')
+                subfig.set_title(f'{clf_name} with {self.feature}')
                 subfig.legend()
                 colour_count += 1
 
         plt.show()
+
 
     def verify_plots_for_both_dataset(self):
         """ Function that calls previous plot fonctions """
