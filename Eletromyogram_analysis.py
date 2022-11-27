@@ -223,6 +223,9 @@ class Electromyogram_analysis:
         """ Implémenter un classifier linéaire avec svm """
         return
 
+    def calculate_score(self):
+        """ Fonction qui va calculer le score d'un classifieur. Il serait peut-être mieux de calculer le score à même la fonction des classifieurs """ 
+        return
 
     def plot_emg_signal_and_fft(self, emg_signal):
         """ Affiche une figure contenant le signal emg à gauche et sa transformée de fourier à droite """
