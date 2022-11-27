@@ -2,8 +2,18 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import scipy.io
-from sklearn import preprocessing
 import json
+
+# Jeux de données
+from sklearn import preprocessing
+from sklearn.model_selection import train_test_split
+
+# Classifieurs
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import NearestCentroid
+
 plt.rcParams.update({'font.size': 16})
 
 class Electromyogram_analysis:
@@ -19,6 +29,7 @@ class Electromyogram_analysis:
         self.f_types = f_types
         self.sample_frequency = 1000
         self.data = {}
+        self.colors = ['#120bd6', '#00d600', '#Ff0000', '#Ffb300', '#Ff5900', '#541c00']
     
 
     def getMAV(self, x, axis=None):
@@ -251,6 +262,52 @@ class Electromyogram_analysis:
             for stat, data in dict_data.items():
                 if stat in to_norm:
                     self.emg_data[subject][stat] = preprocessing.scale(data)
+    
+
+    def split_data_set(self, subject, method='rms', test_size=0.33):
+        """ Split dataset """
+        self.method = method
+        x_data = self.emg_data[subject][method]
+        y_data = self.emg_data[subject]['target']
+        X_train, X_test, y_train, y_test = train_test_split(x_data, y_data, test_size=test_size, random_state=np.random.randint(100, size=1)[0])
+        return (X_train, X_test, y_train, y_test)
+
+    def plot_parametric_classifier(self, data_set, ch0=6, ch1=17, classes='all', legend_with_name=False):
+        """ Apply parametric classifier on dataset, plot for electrode ch0 and ch1 """
+        classifiers = [QuadraticDiscriminantAnalysis(), LinearDiscriminantAnalysis(), GaussianNB(), NearestCentroid()]
+        if classes == 'all':
+            classes = np.unique(data_set[2])
+        else:
+            classes = np.array(classes)
+
+        h = 0.02
+        x_min, x_max = data_set[0][:, ch0].min() - 1, data_set[0][:, ch0].max() + 1
+        y_min, y_max = data_set[0][:, ch1].min() - 1, data_set[0][:, ch1].max() + 1
+        xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+        data = np.c_[data_set[0][:, ch0], data_set[0][:, ch1]]
+
+        fig, subfigs = plt.subplots(2, 2, sharex='all', sharey='all', tight_layout=True)
+
+        for clf, subfig in zip(classifiers, subfigs.reshape(-1)):
+            clf_name = clf.__class__.__name__
+            clf.fit(data, data_set[2])
+            Y = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+            Y = Y.reshape(xx.shape)
+
+            subfig.contourf(xx, yy, Y, cmap=plt.cm.Paired, alpha=0.5)   
+            for c in classes:
+                ind = np.where(data_set[2] == c)
+                if legend_with_name is True:
+                    label = f'{c} : {self.int_to_mvmnt_csv(c)}'
+                else:
+                    label = f'Class : {c}'
+                subfig.scatter(data[ind, 0], data[ind, 1], c=self.colors[c], label=label)
+                subfig.set_xlabel(f'Electrode #{ch0}')
+                subfig.set_ylabel(f'Electrode #{ch1}')
+                subfig.set_title(f'{clf_name} with {self.method}')
+                subfig.legend()
+
+        plt.show()
 
 
     def calculate_and_plot_score_vs_window(self):
