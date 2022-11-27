@@ -186,6 +186,45 @@ class Electromyogram_analysis:
                 data_file.write(json.dumps(emg_data))
         
 
+    def normalize_set(self):
+        """ Description """
+        to_norm = ['mav', 'rms', 'var', 'sc']
+        for subject, dict_data in self.emg_data.items():
+            for stat, data in dict_data.items():
+                if stat in to_norm:
+                    self.emg_data[subject][stat] = preprocessing.scale(data)
+    
+
+    def create_train_set(self, subject, feature='rms', method='train_test_split', test_size=0.33):
+        """ Split dataset """
+        self.feature = feature
+        if method == 'train_test_split':
+            x_data = self.emg_data[subject][feature]
+            y_data = self.emg_data[subject]['target']
+            X_train, X_test, y_train, y_test = train_test_split(x_data, y_data, test_size=test_size, random_state=np.random.randint(100, size=1)[0])
+        return (X_train, X_test, y_train, y_test)
+
+
+    def kfold(self):
+        """ Split dataset with RepeatedKFold to figure out best train set possible """
+        return
+
+
+    def classifier_nearest_centroid_avec_option_de_rejet(self):
+        """ Implémenter l'option de rejet avec le nearest centroid (Devoir 1, #3) """
+        return
+
+
+    def classifier_k_plus_proche_voisins(self):
+        """ Implémenter la méthode des k plus proche voisins (Devoir 2 #3) """ 
+        return
+
+
+    def classifieur_lineaire_svm(self):
+        """ Implémenter un classifier linéaire avec svm """
+        return
+
+
     def plot_emg_signal_and_fft(self, emg_signal):
         """ Affiche une figure contenant le signal emg à gauche et sa transformée de fourier à droite """
         # to do : axes : temps, intensité, fréquences, intensité
