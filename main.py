@@ -20,10 +20,10 @@ from Eletromyogram_analysis import Electromyogram_analysis
 path_mat = 'all_data/data_CapgMyo/matlab_format'
 f_types_mat = 'mat'
 emg_mat = Electromyogram_analysis(path_mat, f_types_mat)
-emg_mat.format_mat_files(window_length=950, name_of_txt_file = 'first_data_set_', overwrite = True)
+emg_mat.format_mat_files(window_length=950, name_of_txt_file = 'first_data_set_', overwrite = False)
 #emg_mat.normalize_set()
 #data_set_mat = emg_mat.create_train_set(subject='1', feature='mav')
-emg_mat.classifier_k_plus_proche_voisins(subject='4', feature='rms', k=5)
+emg_mat.classifier_k_plus_proche_voisins(subject='4', feature='rms', k=1)
 #emg_mat.verify_plots_for_both_dataset()  # in progress
 
 #emg_mat.plot_emg_signal_and_fft(emg_mat.emg_data['1'].get('data')[0][0])

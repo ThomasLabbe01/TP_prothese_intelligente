@@ -239,8 +239,7 @@ class Electromyogram_analysis:
             if y_pred != y_test:
                 score -= 1/np.size(target)
         score *= 100
-        print(score)
-
+        print(f'classifier_k_plus_proche_voisins avec k = {k} et weights = {weigths_param}. Score : {np.round(score, 1)}%')
 
 
     def classifieur_lineaire_svm(self):
