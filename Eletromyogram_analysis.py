@@ -3,6 +3,8 @@ import os
 import matplotlib.pyplot as plt
 import scipy.io
 import json
+from useful_functions import printProgressBar
+import time
 
 # Jeux de données
 from sklearn import preprocessing
@@ -13,6 +15,8 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import NearestCentroid
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import LeaveOneOut
 
 plt.rcParams.update({'font.size': 16})
 
@@ -144,12 +148,13 @@ class Electromyogram_analysis:
         if overwrite is True or os.path.exists(save_path) is False:
 
             emg_data = {}
-
             list_of_data = os.listdir(self.path)
+            printProgressBar(0, len(list_of_data), prefix = f'Format in progress : {name_of_txt_file}{str(window_length)}', suffix= 'Complete', length=50)
             for i in range(len(list_of_data)):
-                if i % 50 == 0:
-                    print(f'{np.round(100*i/len(list_of_data), 2)}%')
-                subject = int(list_of_data[i][0:3])
+
+                # progress bar
+                printProgressBar(i+1, len(list_of_data), prefix = f'Format in progress : {name_of_txt_file}{str(window_length)}', suffix= 'Complete', length=50)
+                subject = str(int(list_of_data[i][0:3]))
                 mvmnt = int(list_of_data[i][4:7])
                 if emg_data.get(subject) == None:
                     emg_data[subject] = {'data' : [], 'mav' : [], 'rms' : [], 'var' : [], 'sd' : [], 'target' : []} 
@@ -214,9 +219,28 @@ class Electromyogram_analysis:
         return
 
 
-    def classifier_k_plus_proche_voisins(self):
+    def classifier_k_plus_proche_voisins(self, subject, feature='rms', k=2, weigths_param = 'uniform'):
         """ Implémenter la méthode des k plus proche voisins (Devoir 2 #3) """ 
-        return
+        emg_data = preprocessing.minmax_scale(self.emg_data[subject][feature])
+        target = np.array(self.emg_data[subject]['target'])
+
+        loo = LeaveOneOut()
+        loo.get_n_splits(emg_data)
+
+        score = 1
+        for train_index, test_index in loo.split(emg_data):
+            X_train, X_test = emg_data[train_index], emg_data[test_index]
+            y_train, y_test = target[train_index], target[test_index]
+
+            neigh = KNeighborsClassifier(n_neighbors=k, weights=weigths_param)
+            neigh.fit(X_train, y_train)
+            y_pred = neigh.predict(X_test)
+
+            if y_pred != y_test:
+                score -= 1/np.size(target)
+        score *= 100
+        print(score)
+
 
 
     def classifieur_lineaire_svm(self):
@@ -300,7 +324,7 @@ class Electromyogram_analysis:
         plt.show()
 
 
-    def plot_parametric_classifier(self, data_set, ch0=6, ch1=17, classes='all', legend_with_name=False):
+    def plot_parametric_classifier_2_electrodes(self, data_set, ch0=6, ch1=17, classes='all', legend_with_name=False):
         """ Apply parametric classifier on dataset, plot for electrode ch0 and ch1 """
         classifiers = [QuadraticDiscriminantAnalysis(), LinearDiscriminantAnalysis(), GaussianNB(), NearestCentroid()]
 
