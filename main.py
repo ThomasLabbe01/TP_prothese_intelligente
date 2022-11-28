@@ -9,12 +9,12 @@ emg_csv.format_csv_files(window_length=300)
 data_set_csv = emg_csv.create_train_set(subject='0', feature='mav')
 #emg_csv.verify_plots_for_both_dataset()
 
-emg_csv.plot_emg_signal_and_fft(emg_csv.emg_data['0'].get('data')[0][0])
-emg_csv.plot_hitogram_mvmnts('0')
-emg_csv.plot_jeu_2_electrodes(subject='0', ch0=6, ch1=17, classes='all', legend_with_name=False)
-emg_csv.plot_parametric_classifier(data_set_csv, classes='all', ch0=3, ch1=18)
+#emg_csv.plot_emg_signal_and_fft(emg_csv.emg_data['0'].get('data')[0][0])
+#emg_csv.plot_hitogram_mvmnts('0')
+#emg_csv.plot_jeu_2_electrodes(subject='0', ch0=5, ch1=18, classes='all', legend_with_name=False)
+emg_csv.plot_parametric_classifier(data_set_csv, classes='all', ch0=5, ch1=18)
 
-
+exit()
 # Capgmyo
 path_mat = 'all_data/data_CapgMyo/matlab_format'
 f_types_mat = 'mat'

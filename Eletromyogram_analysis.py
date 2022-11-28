@@ -223,9 +223,11 @@ class Electromyogram_analysis:
         """ Implémenter un classifier linéaire avec svm """
         return
 
+
     def calculate_score(self):
         """ Fonction qui va calculer le score d'un classifieur. Il serait peut-être mieux de calculer le score à même la fonction des classifieurs """ 
         return
+
 
     def plot_emg_signal_and_fft(self, emg_signal):
         """ Affiche une figure contenant le signal emg à gauche et sa transformée de fourier à droite """
@@ -325,7 +327,13 @@ class Electromyogram_analysis:
             Y = clf.predict(np.c_[xx.ravel(), yy.ravel()])
             Y = Y.reshape(xx.shape)
 
-            subfig.contourf(xx, yy, Y, cmap=plt.cm.Paired, alpha=0.5)   
+            # déterminer les y pas ok avec predict, et ceux qui sont pas ok, scatter, gros rond rouge
+            # ne sert par à calculer le score. Score doit être testé avec le jeu de test, non le jeu d'entraînement
+            y_pred = clf.predict(data)
+            bad_classification = np.argwhere(target - y_pred != 0)
+
+            subfig.contourf(xx, yy, Y, cmap=plt.cm.Paired, alpha=0.5)
+            subfig.scatter(data[bad_classification, 0], data[bad_classification, 1], s=100, facecolors='none', edgecolors='r')   
             colour_count = 0
             for c in classes:
                 ind = np.where(target == c)
