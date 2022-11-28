@@ -2,20 +2,20 @@ from Eletromyogram_analysis import Electromyogram_analysis
 
 
 # GEL_4072
-#path_csv = 'all_data/data_2_electrode_GEL_4072'
-#f_types_csv = 'csv'
-#emg_csv = Electromyogram_analysis(path_csv, f_types_csv)
-#emg_csv.format_csv_files(window_length=300)
-#data_set_csv = emg_csv.create_train_set(subject='0', feature='mav')
-#emg_csv.verify_plots_for_both_dataset()  # in progress
+path_csv = 'all_data/data_2_electrode_GEL_4072'
+f_types_csv = 'csv'
+emg_csv = Electromyogram_analysis(path_csv, f_types_csv)
+emg_csv.format_csv_files(window_length=100)
+data_set_csv = emg_csv.create_train_set(subject='0', feature='mav')
+emg_csv.verify_plots_for_both_dataset()  # in progress
 
-#emg_csv.classifier_k_plus_proche_voisins(subject='0', feature='mav', k=4)
-#emg_csv.plot_emg_signal_and_fft(emg_csv.emg_data['0'].get('data')[0][0])
-#emg_csv.plot_hitogram_mvmnts('0')
-#emg_csv.plot_parametric_classifier_2_electrodes(subject='0', ch0=6, ch1=17, classes='all', legend_with_name=False)
-#emg_csv.plot_parametric_classifier(data_set_csv, classes='all', ch0=5, ch1=18)
+emg_csv.classifier_k_plus_proche_voisins(subject='0', feature='mav', k=4)
+emg_csv.plot_emg_signal_and_fft(emg_csv.emg_data['0'].get('data')[0][0])
+emg_csv.plot_hitogram_mvmnts('0')
+emg_csv.plot_jeu_2_electrodes(subject='0')
+emg_csv.plot_parametric_classifier_2_electrodes(data_set=data_set_csv, ch0=6, ch1=17, classes='all', legend_with_name=False)
 
-
+exit()
 # Capgmyo
 path_mat = 'all_data/data_CapgMyo/matlab_format'
 f_types_mat = 'mat'
