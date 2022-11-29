@@ -32,7 +32,6 @@ class Electromyogram_analysis:
         self.path = path
         self.f_types = f_types
         self.sample_frequency = 1000
-        self.data = {}
         self.colors = ['#120bd6', '#00d600', '#Ff0000', '#Ffb300', '#Ff5900', '#541c00']
     
 
@@ -374,8 +373,17 @@ class Electromyogram_analysis:
         plt.show()
 
 
-    def verify_plots_for_both_dataset(self):
+    def verify_plots_for_both_dataset(self, subject, feature, k, ch0, ch1, classes):
         """ Function that calls previous plot fonctions """
+        self.normalize_set()
+        self.classifier_k_plus_proche_voisins(subject=subject, feature=feature, k=k)
+        self.plot_emg_signal_and_fft(self.emg_data[subject].get('data')[0][0])
+        self.plot_hitogram_mvmnts(subject)
+        self.plot_jeu_2_electrodes(subject=subject)
+
+        data_set = self.create_train_set(subject=subject, feature=feature)
+
+        self.plot_parametric_classifier_2_electrodes(data_set=data_set, ch0=ch0, ch1=ch1, classes=classes, legend_with_name=False)
 
 
     def calculate_and_plot_score_vs_window(self):
