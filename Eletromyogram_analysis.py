@@ -26,6 +26,9 @@ class Electromyogram_analysis:
     Dans ce projet, on va traiter des électromyogrammes venant de deux sources différentes, qui ont sauvegardés leurs signaux de façon différente (csv ou .mat)
     Dans les deux cas, on va traiter les données et les reformat pour produire un fichier .txt, dans lequel on va sauvegarder un dictionnaire.
     Celui-ci va contenir notre jeu et nos targets dans un format que l'on est plus habitué (avec array numpy ou tenseurs pytorch)
+    Autres points à aborder : 
+    - Est-ce que avec Capgmyo on pourrait mettre tous les sujets ensemble ? est-ce que ça donnerait un meilleur résultat ?
+    - Est-ce qu'on a vraiment besoin de sauvegarder data ? c'est juste utile pour plot emg signal, et ça sert pas vraiment à grand chose
     """
     def __init__(self, path, f_types):
         """init class pour path, f_types et sample_frequency"""
@@ -199,12 +202,12 @@ class Electromyogram_analysis:
                     self.emg_data[subject][stat] = preprocessing.scale(data)
     
 
-    def create_train_set(self, subject, feature='rms', test_size=0.33):
+    def create_train_set(self, subject, feature='rms', test_size=0.1, random_state=42):
         """ Split dataset """
         self.feature = feature
         x_data = self.emg_data[subject][feature]
         y_data = self.emg_data[subject]['target']
-        X_train, X_test, y_train, y_test = train_test_split(x_data, y_data, test_size=test_size, random_state=np.random.randint(100, size=1)[0])
+        X_train, X_test, y_train, y_test = train_test_split(x_data, y_data, test_size=test_size, random_state=42)
         return (X_train, X_test, y_train, y_test)
 
 

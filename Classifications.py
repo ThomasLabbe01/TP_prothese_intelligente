@@ -10,10 +10,17 @@ from Eletromyogram_analysis import Electromyogram_analysis
 class Classifications:
     """ Classe qui hérite de Electromyogram_analysis. Dans cette classe, on va définir toutes les fonctions qui font de la classification avec tous les électrodes
         On va également définir des fonctions qui vont segmenter le jeu de données pour utiliser le même dans toutes les classes, et des fonctions qui calculent les scores
-        On veut également implémenter les méthodes suivantes : 
-        - Méthodes de vote : Prendre les 4 classifieurs paramétriques + knn ?
+        Autres choses à implémenter : 
         - Bagging : Ensemble de classifieurs entraînées sur ensembles de données légèrement différents
-        - Autres ... """
+        - Vérifier s'il y aurait pas du prétraitement à faire. Est-ce qu'on est capable d'enlever des électrodes pour améliorer le score ? Bien que c'est un peu l'idée du réseau à convolution (sélection avant et arrière séquentielle
+        - Boosting ?
+
+        Réseau à convolution devrait être la méthode qui nous permet d'obtenir le meilleur score possible
+        Quelle est l'architecture qu'on cherche à avoir ?
+        Quelle est l'architecture qui est utilisée par le groupe de l'université Laval ?
+        Est-ce qu'on peut mettre tous les datas des sujets ensemble ? 
+        Est-ce qu'on peut faire du transfert de représentation pour réutiliser un réseau existant pour un sujet, et l'appliquer à un autre ?
+        """
     def __init__(self, data, subject):
         """init class pour emg_data"""
         self.data = data[subject]
@@ -40,7 +47,9 @@ class Classifications:
             Il serait mieux de créer cette fonction dans useful_functions, de faire une boucle qui va recréer un dataset avec n_window
             et de recalculer le score avec la méthode au choix
             
-            Cette fonction va créer un graphique : socre vs n_window pour les méthodes choisis"""
+            Cette fonction va créer un graphique : score vs n_window pour les méthodes choisis
+            Cette fonction va être un scatter plot, et la taille de chaque point va être proportionnelle à la quantité de signaux qu'on a
+        """
         return
 
 
@@ -57,6 +66,12 @@ class Classifications:
         """ Fonction qui va calculer le score d'un classifieur.
             Cette fonction retourne un score sur 100
         """ 
+        return
+
+    
+    def calculate_score_par_classe(self):
+        """ Fonction qui va calculer le score de chaque mouvement dans le classifieur
+        """
         return
 
 
