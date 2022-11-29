@@ -13,13 +13,14 @@ class Classifications:
         Autres choses à implémenter : 
         - Bagging : Ensemble de classifieurs entraînées sur ensembles de données légèrement différents
         - Vérifier s'il y aurait pas du prétraitement à faire. Est-ce qu'on est capable d'enlever des électrodes pour améliorer le score ? Bien que c'est un peu l'idée du réseau à convolution (sélection avant et arrière séquentielle
-        - Boosting ?
-
+        - Boosting avec petit n_window ? c'est possible ?
+        
         Réseau à convolution devrait être la méthode qui nous permet d'obtenir le meilleur score possible
         Quelle est l'architecture qu'on cherche à avoir ?
         Quelle est l'architecture qui est utilisée par le groupe de l'université Laval ?
         Est-ce qu'on peut mettre tous les datas des sujets ensemble ? 
         Est-ce qu'on peut faire du transfert de représentation pour réutiliser un réseau existant pour un sujet, et l'appliquer à un autre ?
+        TO DO : https://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html#sphx-glr-auto-examples-classification-plot-classifier-comparison-py
         """
     def __init__(self, data, subject):
         """init class pour emg_data"""

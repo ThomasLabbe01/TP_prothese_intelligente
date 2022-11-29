@@ -29,6 +29,7 @@ class Electromyogram_analysis:
     Autres points à aborder : 
     - Est-ce que avec Capgmyo on pourrait mettre tous les sujets ensemble ? est-ce que ça donnerait un meilleur résultat ?
     - Est-ce qu'on a vraiment besoin de sauvegarder data ? c'est juste utile pour plot emg signal, et ça sert pas vraiment à grand chose
+    - Est-ce que les datas de Capgmyo sont vraiment ok ?
     """
     def __init__(self, path, f_types):
         """init class pour path, f_types et sample_frequency"""
