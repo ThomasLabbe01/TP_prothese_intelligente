@@ -361,7 +361,7 @@ class Electromyogram_analysis:
         self.classifier_k_plus_proche_voisins(subject=subject, feature=feature, k=k)
         self.plot_emg_signal_and_fft(self.emg_data[subject].get('data')[0][0])
         self.plot_hitogram_mvmnts(subject)
-        self.plot_jeu_2_electrodes(subject=subject)
+        self.plot_jeu_2_electrodes(subject=subject, classes=classes)
 
         data_set = self.create_train_set(subject=subject, feature=feature)
 
