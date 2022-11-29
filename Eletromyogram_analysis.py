@@ -208,16 +208,6 @@ class Electromyogram_analysis:
         return (X_train, X_test, y_train, y_test)
 
 
-    def kfold(self):
-        """ Split dataset with RepeatedKFold to figure out best train set possible """
-        return
-
-
-    def classifier_nearest_centroid_avec_option_de_rejet(self):
-        """ Implémenter l'option de rejet avec le nearest centroid (Devoir 1, #3) """
-        return
-
-
     def classifier_k_plus_proche_voisins(self, subject, feature='rms', k=2, weigths_param = 'uniform'):
         """ Implémenter la méthode des k plus proche voisins (Devoir 2 #3) """ 
         emg_data = preprocessing.minmax_scale(self.emg_data[subject][feature])
@@ -239,16 +229,6 @@ class Electromyogram_analysis:
                 score -= 1/np.size(target)
         score *= 100
         print(f'classifier_k_plus_proche_voisins avec k = {k} et weights = {weigths_param}. Score : {np.round(score, 1)}%')
-
-
-    def classifieur_lineaire_svm(self):
-        """ Implémenter un classifier linéaire avec svm """
-        return
-
-
-    def calculate_score(self):
-        """ Fonction qui va calculer le score d'un classifieur. Il serait peut-être mieux de calculer le score à même la fonction des classifieurs """ 
-        return
 
 
     def plot_emg_signal_and_fft(self, emg_signal):
@@ -375,7 +355,6 @@ class Electromyogram_analysis:
 
     def verify_plots_for_both_dataset(self, subject, feature, k, ch0, ch1, classes):
         """ Function that calls previous plot fonctions """
-        self.normalize_set()
         self.classifier_k_plus_proche_voisins(subject=subject, feature=feature, k=k)
         self.plot_emg_signal_and_fft(self.emg_data[subject].get('data')[0][0])
         self.plot_hitogram_mvmnts(subject)
@@ -385,7 +364,3 @@ class Electromyogram_analysis:
 
         self.plot_parametric_classifier_2_electrodes(data_set=data_set, ch0=ch0, ch1=ch1, classes=classes, legend_with_name=False)
 
-
-    def calculate_and_plot_score_vs_window(self):
-        """ Calculer et afficher la précision d'un classement en fonction du temps de traitement """
-        return
