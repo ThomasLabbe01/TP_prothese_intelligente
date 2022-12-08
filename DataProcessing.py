@@ -122,7 +122,7 @@ class DataProcessing:
                     segment = data_read[electrode][w*window_length:w*window_length+window_length]
 
                     data[w+count][electrode] = segment
-                    mav_data[w+count][electrode] = self.getMeanAbsoluteValue(segment)
+                    mav_data[w+count][electrode] = self.findMeanAbsoluteValue(segment)
                     rms_data[w+count][electrode] = self.findRootMeanSquareValue(segment)
                     var_data[w+count][electrode] = self.findVariance(segment)
                     sd_data[w+count][electrode] = self.findStandardDerivation(segment)

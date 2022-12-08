@@ -5,7 +5,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticD
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import NearestCentroid, KNeighborsClassifier
 from sklearn.model_selection import RepeatedKFold, train_test_split
-from Eletromyogram_analysis import DataProcessing
+from DataProcessing import DataProcessing
 
 class Classifications:
     """ Classe qui hérite de Electromyogram_analysis. Dans cette classe, on va définir toutes les fonctions qui font de la classification avec tous les électrodes
