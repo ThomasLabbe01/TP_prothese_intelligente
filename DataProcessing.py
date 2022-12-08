@@ -20,7 +20,7 @@ from sklearn.model_selection import LeaveOneOut
 
 plt.rcParams.update({'font.size': 16})
 
-class Electromyogram_analysis:
+class DataProcessing:
     """
     Classe qui va traiter les électromyogrammes en fonction du type de fichier qu'il reçoit.
     Dans ce projet, on va traiter des électromyogrammes venant de deux sources différentes, qui ont sauvegardés leurs signaux de façon différente (csv ou .mat)
@@ -31,66 +31,64 @@ class Electromyogram_analysis:
     - Est-ce qu'on a vraiment besoin de sauvegarder data ? c'est juste utile pour plot emg signal, et ça sert pas vraiment à grand chose
     - Est-ce que les datas de Capgmyo sont vraiment ok ?
     """
+
+    # Variables de classe
+    sample_frequency = 1000
+    colors = ['#120bd6', '#00d600', '#Ff0000', '#Ffb300', '#Ff5900', '#541c00']
+
+    """constructeur pourc initialiser le path et le type de fichier (.csv ou .mat)"""
     def __init__(self, path, f_types):
-        """init class pour path, f_types et sample_frequency"""
         self.path = path
         self.f_types = f_types
-        self.sample_frequency = 1000
-        self.colors = ['#120bd6', '#00d600', '#Ff0000', '#Ffb300', '#Ff5900', '#541c00']
-    
 
-    def getMAV(self, x, axis=None):
-        """
-        Computes the Mean Absolute Value (MAV)
-        :param x: EMG signal vector as [1-D numpy array]
-        :return: Mean Absolute Value as [float]
-        """
+    """
+    #Computes the Mean Absolute Value (MAV)
+    :param x: EMG signal vector as [1-D numpy array]
+    :return: Mean Absolute Value as [float]
+    """
+    def findMeanAbsoluteValue(self, x, axis=None):
         MAV = np.mean(np.abs(x), axis)
         return MAV
     
 
-    def getRMS(self, x, axis=None):
-        """
-        Computes the Root Mean Square value (RMS)
-        :param x: EMG signal vector as [1-D numpy array]
-        :return: Root Mean Square value as [float]
-        """
+    """
+    Computes the Root Mean Square value (RMS)
+    :param x: EMG signal vector as [1-D numpy array]
+    :return: Root Mean Square value as [float]
+    """
+    def findRootMeanSquareValue(self, x, axis=None):
         RMS = np.sqrt(np.mean(x**2, axis))
         return RMS
     
-    
-    def getVAR(self, x, axis=None):
-        """
-        Computes the Variance of EMG (Var)
-        :param x: EMG signal vector as [1-D numpy array]
-        :return: Variance of EMG as [float]
-        """
+    """
+    Computes the Variance of EMG (Var)
+    :param x: EMG signal vector as [1-D numpy array]
+    :return: Variance of EMG as [float]
+    """
+    def findVariance(self, x, axis=None):
         N = np.shape(x)[-1]
         Var = (1/(N-1))*np.sum(x**2, axis)
         return Var
     
-    
-    def getSD(self, x, axis=None):
-        """
-        Computes the Standard Deviation (SD)
-        :param x: EMG signal vector as [1-D numpy array]
-        :return: Standard Deviation as [float]
-        """
+    """
+    Computes the Standard Deviation (SD)
+    :param x: EMG signal vector as [1-D numpy array]
+    :return: Standard Deviation as [float]
+    """
+    def findStandardDerivation(self, x, axis=None):
         N = np.shape(x)[-1]
         xx = np.mean(x, axis)
         SD = np.sqrt(1/(N-1)*np.sum((x-xx)**2, axis))
         return SD
 
-
-    def int_to_mvmnt_csv(self, mvmnt):
-        """description"""
+    """description"""
+    def intToMovementCSV(self, mvmnt):
         assert self.f_types == 'csv'
         mvmnts = {0: 'Closed fist', 1: 'Thumb up', 2: 'Tri-pod pinch', 3: 'Neutral hand position', 4: 'Fine pinch (index+thumb)', 5: 'Pointed index'}
         return mvmnts.get(mvmnt)
     
-    
-    def format_csv_files(self, window_length=200):
-        """ format csv files and makes sure files ext are .csv """
+    """ format csv files and makes sure files extention is .csv """
+    def formatCSVFiles(self, window_length=200):
         assert self.f_types == 'csv'
         subject = '0'
         list_of_csv_files = os.listdir(self.path)
@@ -124,10 +122,10 @@ class Electromyogram_analysis:
                     segment = data_read[electrode][w*window_length:w*window_length+window_length]
 
                     data[w+count][electrode] = segment
-                    mav_data[w+count][electrode] = self.getMAV(segment)
-                    rms_data[w+count][electrode] = self.getRMS(segment)
-                    var_data[w+count][electrode] = self.getVAR(segment)
-                    sd_data[w+count][electrode] = self.getSD(segment)
+                    mav_data[w+count][electrode] = self.getMeanAbsoluteValue(segment)
+                    rms_data[w+count][electrode] = self.findRootMeanSquareValue(segment)
+                    var_data[w+count][electrode] = self.findVariance(segment)
+                    sd_data[w+count][electrode] = self.findStandardDerivation(segment)
                 target.append(int(file[0:3]))
             count += w + 1
 
@@ -138,9 +136,8 @@ class Electromyogram_analysis:
 
         self.emg_data = {subject : {'data' : data, 'target' : target, 'mav' : mav_data, 'rms' : rms_data, 'var' : var_data, 'sd' : sd_data}}
 
-
-    def format_mat_files(self, window_length=150, name_of_txt_file='first_data_set_', overwrite=False):
-        """ format mat files and makes sure files ext are .mat """
+    """ format mat files and makes sure files extention is .mat """
+    def formatMATFiles(self, window_length=150, name_of_txt_file='first_data_set_', overwrite=False):
         assert self.f_types == 'mat'
 
         path_levels = self.path.split('/')
@@ -174,10 +171,10 @@ class Electromyogram_analysis:
                         segment = emg_signals[electrode][w*window_length:w*window_length+window_length]
                         data += [segment.tolist()]
 
-                        mav_data += [self.getMAV(segment).tolist()]
-                        rms_data += [self.getRMS(segment).tolist()]
-                        var_data += [self.getVAR(segment).tolist()]
-                        sd_data += [self.getSD(segment).tolist()]
+                        mav_data += [self.getMeanAbsoluteValue(segment).tolist()]
+                        rms_data += [self.findRootMeanSquareValue(segment).tolist()]
+                        var_data += [self.findVariance(segment).tolist()]
+                        sd_data += [self.findStandardDerivation(segment).tolist()]
 
 
                     emg_data[subject]['mav'].append(mav_data)
@@ -193,27 +190,24 @@ class Electromyogram_analysis:
             with open(save_path, 'w+') as data_file:
                 data_file.write(json.dumps(emg_data))
         
-
-    def normalize_set(self):
-        """ Description """
+    """ Description """
+    def normalizeSet(self):
         to_norm = ['mav', 'rms', 'var', 'sc']
         for subject, dict_data in self.emg_data.items():
             for stat, data in dict_data.items():
                 if stat in to_norm:
                     self.emg_data[subject][stat] = preprocessing.scale(data)
     
-
-    def create_train_set(self, subject, feature='rms', test_size=0.1, random_state=42):
-        """ Split dataset """
+    """ Split dataset """
+    def createTrainingSet(self, subject, feature='rms', test_size=0.1, random_state=42):
         self.feature = feature
         x_data = self.emg_data[subject][feature]
         y_data = self.emg_data[subject]['target']
         X_train, X_test, y_train, y_test = train_test_split(x_data, y_data, test_size=test_size, random_state=42)
         return (X_train, X_test, y_train, y_test)
 
-
-    def classifier_k_plus_proche_voisins(self, subject, feature='rms', k=2, weigths_param = 'uniform'):
-        """ Implémenter la méthode des k plus proche voisins (Devoir 2 #3) """ 
+    """ Implémenter la méthode des k plus proche voisins (Devoir 2 #3) """ 
+    def classifierKPlusProcheVoisins(self, subject, feature='rms', k=2, weigths_param = 'uniform'):
         emg_data = preprocessing.minmax_scale(self.emg_data[subject][feature])
         target = np.array(self.emg_data[subject]['target'])
 
@@ -234,9 +228,8 @@ class Electromyogram_analysis:
         score *= 100
         print(f'classifier_k_plus_proche_voisins avec k = {k} et weights = {weigths_param}. Score : {np.round(score, 1)}%')
 
-
-    def plot_emg_signal_and_fft(self, emg_signal):
-        """ Affiche une figure contenant le signal emg à gauche et sa transformée de fourier à droite """
+    """ Affiche une figure contenant le signal emg à gauche et sa transformée de fourier à droite """
+    def plotEMGSignalAndFFT(self, emg_signal):
         # to do : axes : temps, intensité, fréquences, intensité
         ps = np.abs(np.fft.fft(emg_signal))**2
         time_step = 1/self.sample_frequency
@@ -253,9 +246,8 @@ class Electromyogram_analysis:
 
         plt.show()
 
-
-    def plot_hitogram_mvmnts(self, subject):
-        """ Affiche un histogramme représentant la répartition des mouvements provenant du dataset"""
+    """ Affiche un histogramme représentant la répartition des mouvements provenant du dataset"""
+    def plotMovementHistogram(self, subject):
         target = self.emg_data[subject].get('target')
         all_classes = np.unique(target)
         classes_count = {}
@@ -280,7 +272,7 @@ class Electromyogram_analysis:
         plt.show() 
 
 
-    def plot_jeu_2_electrodes(self, subject, ch0=6, ch1 = 17, classes='all', legend_with_name=False):
+    def plot2ElectrodeSet(self, subject, ch0=6, ch1 = 17, classes='all', legend_with_name=False):
         target = self.emg_data[subject].get('target')
         if classes == 'all':
             classes = np.unique(target)
@@ -293,7 +285,7 @@ class Electromyogram_analysis:
             for c in classes:
                 ind = np.where(target == c)
                 if legend_with_name is True:
-                    label = f'{c} : {self.int_to_mvmnt_csv(c)}'
+                    label = f'{c} : {self.intToMovementCSV(c)}'
                 else:
                     label = f'Class : {c}'
                 x = np.array(self.emg_data[subject].get(stats[count]))[ind, ch0]
@@ -305,9 +297,8 @@ class Electromyogram_analysis:
                 subfigs[(f1, f2)].legend()
         plt.show()
 
-
-    def plot_parametric_classifier_2_electrodes(self, data_set, ch0=6, ch1=17, classes='all', legend_with_name=False):
-        """ Apply parametric classifier on dataset, plot for electrode ch0 and ch1 """
+    """ Apply parametric classifier on dataset, plot for electrode ch0 and ch1 """
+    def plot2ElectrodeParametricClassifier(self, data_set, ch0=6, ch1=17, classes='all', legend_with_name=False):
         classifiers = [QuadraticDiscriminantAnalysis(), LinearDiscriminantAnalysis(), GaussianNB(), NearestCentroid()]
 
         h = 0.02
@@ -344,7 +335,7 @@ class Electromyogram_analysis:
             for c in classes:
                 ind = np.where(target == c)
                 if legend_with_name is True:
-                    label = f'{c} : {self.int_to_mvmnt_csv(c)}'
+                    label = f'{c} : {self.intToMovementCSV(c)}'
                 else:
                     label = f'Class : {c}'
                 subfig.scatter(data[ind, 0], data[ind, 1], c=self.colors[colour_count], label=label)
@@ -356,15 +347,14 @@ class Electromyogram_analysis:
 
         plt.show()
 
+    """ Function that calls previous plot fonctions """
+    def plotForBothDatasetsVerification(self, subject, feature, k, ch0, ch1, classes):
+        self.classifierKPlusProcheVoisins(subject=subject, feature=feature, k=k)
+        self.plotEMGSignalAndFFT(self.emg_data[subject].get('data')[0][0])
+        self.plotMovementHistogram(subject)
+        self.plot2ElectrodeSet(subject=subject, classes=classes)
 
-    def verify_plots_for_both_dataset(self, subject, feature, k, ch0, ch1, classes):
-        """ Function that calls previous plot fonctions """
-        self.classifier_k_plus_proche_voisins(subject=subject, feature=feature, k=k)
-        self.plot_emg_signal_and_fft(self.emg_data[subject].get('data')[0][0])
-        self.plot_hitogram_mvmnts(subject)
-        self.plot_jeu_2_electrodes(subject=subject, classes=classes)
+        data_set = self.createTrainingSet(subject=subject, feature=feature)
 
-        data_set = self.create_train_set(subject=subject, feature=feature)
-
-        self.plot_parametric_classifier_2_electrodes(data_set=data_set, ch0=ch0, ch1=ch1, classes=classes, legend_with_name=False)
+        self.plot2ElectrodeParametricClassifier(data_set=data_set, ch0=ch0, ch1=ch1, classes=classes, legend_with_name=False)
 
