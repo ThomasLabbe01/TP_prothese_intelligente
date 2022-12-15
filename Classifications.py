@@ -84,13 +84,23 @@ class Classifications:
     """ Fonction qui va calculer le score d'un classifieur.
         Cette fonction retourne un score sur 100
     """ 
-    def calculate_score(self):
-        return
+    def calculate_score(self, classScore, classSize):
+
+        return np.sum(classScore * classSize) / np.sum(classSize)
 
     """ Fonction qui va calculer le score de chaque mouvement dans le classifieur
     """
-    def calculate_score_par_classe(self):
-        return
+    def calculate_score_par_classe(self, predict_data):
+        classes = np.unique(self.testData[1])
+        classScore = []
+        classSize = []
+        for c in classes:
+            results = np.where(predict_data == c)
+            target = np.where(self.testData[1] == c)
+            classScore.append(100*np.sum(np.isin(target, results))/np.size(target))
+            classSize.append(np.size(target))
+        
+        return np.array(classScore), np.array(classSize), classes
 
     """ Fonction qui va faire une classification avec la méthode paramétrique NearestCentroid()
         Cette fonction retourne y_pred

@@ -12,9 +12,10 @@ def runGel4072Dataset():
     #emgCSV.plotForBothDatasetsVerification(subject='0', feature='mav', k=1, ch0=6, ch1=17, classes='all')
     classifications = Classifications(emgCSV.emg_data, subject='0', statistique='mav')
     classifications.data_segmentation(method='train_test_split', proportions=[0.7, 0.3, 0])
-    classifications.methodeDeVote()
-    print(classifications.methodeDeVote())
-    print(classifications.methodeDeVote() - classifications.testData[1])
+    predictions = classifications.classifieurNoyauGaussien()
+    classScore, classSize, classes = classifications.calculate_score_par_classe(predict_data=predictions)
+    totalScore = classifications.calculate_score(classScore, classSize)
+    print(totalScore)
 
 # Permet de charger les données du dataset Capgmyo provenant d'un seul utilisateur (fichiers .mat) et de les traiter.
 def runCapgmyoDataset():
