@@ -31,15 +31,27 @@ class Classifications:
     """ Fonction qui va ségmenter le jeu de données selon proportions.
         Si validation = True, size(proportions) = 3, [train, test, validation] 
         Implémenter les méthodes suivantes : 
-        - train_test_splot
+        - train_test_split
         - RepeatedKFolder
         - KFold
         - LeaveOneOut (peut-être plus approprié de définir dans Knn
 
-        Cette fonction retourne (X_train, X_test, y_train, y_test)
+        Cette fonction retourne (X_train, X_test, X_validation, y_train, y_test, y_validation)
     """
-    def data_segmentation(self, method, proportions= [0.5, 0.5], validation=False):
-        return  
+    def data_segmentation(self, method, statistique, proportions= [0.7, 0.15, 0.15]):
+        assert len(proportions) == 3, 'La variable proportions doit avoir une taille de 3 : [entraînement, test, validation]. Si on veut une taille nulle au jeu de validation, validation = 0'
+        segmented_dataset = []
+        if method == 'train_test_split':
+            if proportions[2] != 0:
+                X_train, X_test, y_train, y_test = train_test_split(self.data[statistique], self.data['target'], test_size = proportions[1]+proportions[2], random_state=42)
+                X_test, X_validation, y_test, y_validation = train_test_split(X_test, y_test, test_size = proportions[2]/(proportions[1]+proportions[2]), random_state=42)
+                segmented_dataset = [(X_train, X_test, X_validation), (y_train, y_test, y_validation)]
+
+            if proportions[2] == 0:
+                X_train, X_test, y_train, y_test = train_test_split(self.data[statistique], self.data['target'], test_size = proportions[1], random_state=42)
+                segmented_dataset = [(X_train, X_test), (y_train, y_test)]
+
+        return segmented_dataset
 
     """ Calculer et afficher la précision d'un classement en fonction du temps de traitement 
         Il serait mieux de créer cette fonction dans useful_functions, de faire une boucle qui va recréer un dataset avec n_window
