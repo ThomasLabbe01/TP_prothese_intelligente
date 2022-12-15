@@ -171,7 +171,7 @@ class DataProcessing:
                         segment = emg_signals[electrode][w*window_length:w*window_length+window_length]
                         data += [segment.tolist()]
 
-                        mav_data += [self.getMeanAbsoluteValue(segment).tolist()]
+                        mav_data += [self.findMeanAbsoluteValue(segment).tolist()]
                         rms_data += [self.findRootMeanSquareValue(segment).tolist()]
                         var_data += [self.findVariance(segment).tolist()]
                         sd_data += [self.findStandardDerivation(segment).tolist()]
