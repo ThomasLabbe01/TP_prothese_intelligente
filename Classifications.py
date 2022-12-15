@@ -100,17 +100,6 @@ class Classifications:
         return classScore
 
 
-    """ 
-        Calculer et afficher la précision d'un classement en fonction du temps de traitement 
-        Il serait mieux de créer cette fonction dans useful_functions, de faire une boucle qui va recréer un dataset avec n_window
-        et de recalculer le score avec la méthode au choix
-        
-        Cette fonction va créer un graphique : score vs n_window pour les méthodes choisis
-        Cette fonction va être un scatter plot, et la taille de chaque point va être proportionnelle à la quantité de signaux qu'on a
-    """
-    def calculate_and_plot_score_vs_window(self):
-        return
-
     """ Fonction qui va faire une classification avec la méthode paramétrique NearestCentroid()
         Cette fonction retourne y_pred
     """

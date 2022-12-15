@@ -1,5 +1,6 @@
 from DataProcessing import DataProcessing
 from Classifications import Classifications
+from Analysis import calculate_and_plot_score_vs_window
 
 # Permet de charger les données du dataset gel_4072 provenant de plusieurs utilisateurs différents (fichiers .csv) et de les traiter.
 def runGel4072Dataset():
@@ -13,9 +14,6 @@ def runGel4072Dataset():
     classifications = Classifications(emgCSV.emg_data, subject='0', statistique='mav')
     classifications.data_segmentation(method='train_test_split', proportions=[0.8, 0.2, 0])
     predictions = classifications.classifieurMethodeDeVote()
-    classifications.calculate_general_score(predictions)
-    classScore = classifications.matriceDeConfusion(predict_data = predictions, plot_figure = True)
-    print(classScore)
 # Permet de charger les données du dataset Capgmyo provenant d'un seul utilisateur (fichiers .mat) et de les traiter.
 def runCapgmyoDataset():
     accessPath = 'all_data/data_CapgMyo/matlab_format'
@@ -25,4 +23,9 @@ def runCapgmyoDataset():
     emgMAT.normalizeSet()
     emgMAT.plotForBothDatasetsVerification(subject='1', feature='rms', k=3, ch0=8, ch1=72, classes=[1, 2, 3, 4, 5])
 
-runGel4072Dataset()
+#runGel4072Dataset()
+
+accessPath = accessPath = 'all_data/data_2_electrode_GEL_4072'
+fileType = 'csv'
+window_length = list(range(10, 200, 10))
+calculate_and_plot_score_vs_window(accessPath=accessPath, fileType=fileType, window_length=window_length, plot_figure=True)
