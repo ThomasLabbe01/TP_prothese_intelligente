@@ -1,6 +1,6 @@
 from DataProcessing import DataProcessing
 from Classifications import Classifications
-
+from Analysis import Analysis
 
 # Permet de charger les données du dataset gel_4072 provenant de plusieurs utilisateurs différents (fichiers .csv) et de les traiter.
 def runGel4072Dataset():
@@ -10,6 +10,7 @@ def runGel4072Dataset():
     emgCSV.formatCSVFiles(window_length=50)
     emgCSV.normalizeSet()
     #emgCSV.plotForBothDatasetsVerification(subject='0', feature='mav', k=1, ch0=6, ch1=17, classes='all')
+
     classifications = Classifications(emgCSV.emg_data, subject='0', statistique='mav')
     classifications.data_segmentation(method='train_test_split', proportions=[0.7, 0.3, 0])
     predictions = classifications.classifieurNoyauGaussien()

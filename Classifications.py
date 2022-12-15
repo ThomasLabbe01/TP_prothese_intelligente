@@ -63,29 +63,10 @@ class Classifications:
         self.testData = testData
         self.validationData = validationData
 
-    """ Calculer et afficher la précision d'un classement en fonction du temps de traitement 
-        Il serait mieux de créer cette fonction dans useful_functions, de faire une boucle qui va recréer un dataset avec n_window
-        et de recalculer le score avec la méthode au choix
-        
-        Cette fonction va créer un graphique : score vs n_window pour les méthodes choisis
-        Cette fonction va être un scatter plot, et la taille de chaque point va être proportionnelle à la quantité de signaux qu'on a
-    """
-    def calculate_and_plot_score_vs_window(self):
-        return
-
-    """ Calculer et afficher la précision d'un classement en fonction du temps de traitement 
-        Il serait mieux de créer cette fonction dans useful_functions, de faire une boucle qui va recréer un dataset avec n_window
-        et de recalculer le score avec le feature au choix
-        
-        Cette fonction va créer un graphique : score vs n_window pour les features choisis"""
-    def calculate_and_plot_score_vs_feature(self):
-        return
-
     """ Fonction qui va calculer le score d'un classifieur.
         Cette fonction retourne un score sur 100
     """ 
     def calculate_score(self, classScore, classSize):
-
         return np.sum(classScore * classSize) / np.sum(classSize)
 
     """ Fonction qui va calculer le score de chaque mouvement dans le classifieur
