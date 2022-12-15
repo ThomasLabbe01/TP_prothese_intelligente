@@ -1,6 +1,8 @@
-import plotly.graph_objects as go
+from mlxtend.plotting import plot_confusion_matrix
 from DataProcessing import DataProcessing
 from Classifications import Classifications
+import numpy as np
+import matplotlib.pyplot as plt
 
 class Analysis:
 
@@ -30,8 +32,3 @@ class Analysis:
         Cette fonction va créer un graphique : score vs n_window pour les features choisis"""
     def calculate_and_plot_score_vs_subject_with_best_feature(self):
         return
-
-    
-    def matriceDeDecision(self):
-        return
-    

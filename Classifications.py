@@ -8,6 +8,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.model_selection import RepeatedKFold, train_test_split, LeaveOneOut
 from DataProcessing import DataProcessing
+from mlxtend.plotting import plot_confusion_matrix
 
 class Classifications:
     """ Classe qui hérite de Electromyogram_analysis. Dans cette classe, on va définir toutes les fonctions qui font de la classification avec tous les électrodes
@@ -30,6 +31,7 @@ class Classifications:
         self.subject = subject
         self.colors = ['#120bd6', '#00d600', '#Ff0000', '#Ffb300', '#Ff5900', '#541c00']
         self.statistique = statistique
+        self.clfName = ''
 
     """ Fonction qui va ségmenter le jeu de données selon proportions.
         Si validation = True, size(proportions) = 3, [train, test, validation] 
@@ -66,22 +68,48 @@ class Classifications:
     """ Fonction qui va calculer le score d'un classifieur.
         Cette fonction retourne un score sur 100
     """ 
-    def calculate_score(self, classScore, classSize):
-        return np.sum(classScore * classSize) / np.sum(classSize)
+    def calculate_general_score(self, predict_data):
+        good_predictions = np.where(predict_data - self.testData[1] == 0)
+        self.totalScore = 100 * np.size(good_predictions)/np.size(predict_data)
 
     """ Fonction qui va calculer le score de chaque mouvement dans le classifieur
     """
-    def calculate_score_par_classe(self, predict_data):
-        classes = np.unique(self.testData[1])
-        classScore = []
-        classSize = []
+    def matriceDeConfusion(self, predict_data, plot_figure = False):
+        assert self.clfName != '', "Il faut d'abord faire une classification avec une méthode qui commence par 'classifieur'"
+
+        target = np.array(self.testData[1])
+        classes = np.unique(target)
+        postures = [f'Posture {i}' for i in classes]
+        classScore = np.zeros((np.size(classes), np.size(classes)))
         for c in classes:
-            results = np.where(predict_data == c)
-            target = np.where(self.testData[1] == c)
-            classScore.append(100*np.sum(np.isin(target, results))/np.size(target))
-            classSize.append(np.size(target))
+            class_c_index = np.where(predict_data == c)
+            results = target[class_c_index]
+            mouvement, count = np.unique(results, return_counts=True)
+            for index, mvmnt in enumerate(mouvement):
+                classScore[c, mvmnt] = count[index]
+            classScore[c, :] *= 1/np.sum(classScore[c, :])
+
+        if plot_figure == True:
+            fig, ax = plot_confusion_matrix(conf_mat=classScore,
+                                            colorbar=True,
+                                            show_absolute=False,
+                                            show_normed=True,
+                                            class_names=postures)
+            plt.title('Normalized confusion matrix with {:s}, Score total = {:.2f} %'.format(self.clfName, self.totalScore))
+            plt.show()   
+        return classScore
+
+
+    """ 
+        Calculer et afficher la précision d'un classement en fonction du temps de traitement 
+        Il serait mieux de créer cette fonction dans useful_functions, de faire une boucle qui va recréer un dataset avec n_window
+        et de recalculer le score avec la méthode au choix
         
-        return np.array(classScore), np.array(classSize), classes
+        Cette fonction va créer un graphique : score vs n_window pour les méthodes choisis
+        Cette fonction va être un scatter plot, et la taille de chaque point va être proportionnelle à la quantité de signaux qu'on a
+    """
+    def calculate_and_plot_score_vs_window(self):
+        return
 
     """ Fonction qui va faire une classification avec la méthode paramétrique NearestCentroid()
         Cette fonction retourne y_pred
@@ -90,6 +118,7 @@ class Classifications:
         clf = NearestCentroid()
         clf.fit(self.trainData[0], self.trainData[1])
 
+        self.clfName = 'classifieurNearestCentroid'
         return clf.predict(self.testData[0]) 
 
     """ Fonction qui va faire une classification avec la méthode paramétrique GaussianNB()
@@ -99,6 +128,7 @@ class Classifications:
         clf = GaussianNB()
         clf.fit(self.trainData[0], self.trainData[1])
 
+        self.clfName = 'classifieurNoyauGaussien'
         return clf.predict(self.testData[0])
     
     """ Fonction qui va faire une classification avec la méthode paramétrique LinearDiscriminantAnalysis()
@@ -108,6 +138,7 @@ class Classifications:
         clf = LinearDiscriminantAnalysis()
         clf.fit(self.trainData[0], self.trainData[1])
 
+        self.clfName = 'classifieurLineaire'
         return clf.predict(self.testData[0])
 
     """ Fonction qui va faire une classification avec la méthode paramétrique QuadraticDiscriminantAnalysis()
@@ -117,6 +148,7 @@ class Classifications:
         clf = QuadraticDiscriminantAnalysis()
         clf.fit(self.trainData[0], self.trainData[1])
 
+        self.clfName = 'classifeurQuadratique'
         return clf.predict(self.testData[0])
     
     """ Implémenter un classifier linéaire avec svm """
@@ -132,6 +164,7 @@ class Classifications:
         neigh = KNeighborsClassifier(n_neighbors=k, weights=weights_param)
         neigh.fit(self.trainData[0], self.trainData[1])
 
+        self.clfName = 'classifierKPlusProcheVoisins'
         return neigh.predict(self.testData[0])
 
 
@@ -140,6 +173,7 @@ class Classifications:
         clf = DecisionTreeClassifier(max_depth = max_depth)
         clf.fit(self.trainData[0], self.trainData[1])
 
+        self.clfName = 'classifieurDecisionTree'
         return clf.predict(self.testData[0])
 
     """ Implémenter la méthode sklearn.ensemble.RandomForestClassifier"""
@@ -147,6 +181,7 @@ class Classifications:
         clf = RandomForestClassifier(max_depth=max_dept, n_estimators=n_estimator, max_features=max_features)
         clf.fit(self.trainData[0], self.trainData[1])
 
+        self.clfName = 'classifieurRandomDecisionTree'
         return clf.predict(self.testData[0])
 
     """ Implémenter la méthode sklearn.ensemble.AdaBoostClassifier"""
@@ -154,6 +189,7 @@ class Classifications:
         clf = AdaBoostClassifier(n_estimators=n_estimators, random_state=random_state)
         clf.fit(self.trainData[0], self.trainData[1])
 
+        self.clfName = 'classifieurAdaBoost'
         return clf.predict(self.testData[0])
 
 
@@ -171,7 +207,7 @@ class Classifications:
         3. comparer à target
         4. calculer le score
     """
-    def methodeDeVote(self):
+    def classifieurMethodeDeVote(self):
         classifieurs = np.array([self.classifieurNearestCentroid(),
                                  self.classifieurLineaire(), 
                                  self.classifieurNoyauGaussien(),
@@ -180,6 +216,7 @@ class Classifications:
                                  self.classifieurDecisionTree(max_depth=5), 
                                  self.classifieurRandomDecisionTree(max_dept=5, n_estimator=10, max_features=1), 
                                  self.classifieurAdaBoost(n_estimators=100, random_state=42)])
+
         classifeurs_name = ['classifieurNearestCentroid', 
                             'classifieurLineaire', 
                             'classifieurNoyauGaussien',
@@ -193,4 +230,5 @@ class Classifications:
         for i in range(np.shape(classifieurs)[1]):
             counts = np.bincount(classifieurs[:, i])
             voteResults.append(np.argmax(counts))
+        self.clfName = 'classifieurMethodeDeVote'
         return np.array(voteResults)

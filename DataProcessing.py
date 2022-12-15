@@ -18,7 +18,7 @@ from sklearn.neighbors import NearestCentroid
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import LeaveOneOut
 
-plt.rcParams.update({'font.size': 16})
+plt.rcParams.update({'font.size': 12})
 
 class DataProcessing:
     """
