@@ -4,6 +4,8 @@ import os
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import NearestCentroid, KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.model_selection import RepeatedKFold, train_test_split, LeaveOneOut
 from DataProcessing import DataProcessing
 
@@ -93,7 +95,7 @@ class Classifications:
     """ Fonction qui va faire une classification avec la méthode paramétrique NearestCentroid()
         Cette fonction retourne y_pred
     """
-    def classifieur_nearest_centroid(self):
+    def classifieurNearestCentroid(self):
         clf = NearestCentroid()
         clf.fit(self.trainData[0], self.trainData[1])
 
@@ -102,7 +104,7 @@ class Classifications:
     """ Fonction qui va faire une classification avec la méthode paramétrique GaussianNB()
         Cette fonction retourne y_pred
     """
-    def classifieur_noyau_gaussien(self):
+    def classifieurNoyauGaussien(self):
         clf = GaussianNB()
         clf.fit(self.trainData[0], self.trainData[1])
 
@@ -111,7 +113,7 @@ class Classifications:
     """ Fonction qui va faire une classification avec la méthode paramétrique LinearDiscriminantAnalysis()
         Cette fonction retourn y_pred
     """
-    def classifieur_lineaire(self):
+    def classifieurLineaire(self):
         clf = LinearDiscriminantAnalysis()
         clf.fit(self.trainData[0], self.trainData[1])
 
@@ -120,37 +122,49 @@ class Classifications:
     """ Fonction qui va faire une classification avec la méthode paramétrique QuadraticDiscriminantAnalysis()
         Cette fonction retourne y_pred
     """
-    def classifeur_quadratique(self):
+    def classifeurQuadratique(self):
         clf = QuadraticDiscriminantAnalysis()
         clf.fit(self.trainData[0], self.trainData[1])
 
         return clf.predict(self.testData[0])
     
     """ Implémenter un classifier linéaire avec svm """
-    def classifieur_lineaire_svm(self):
+    def classifieurLineaireSvm(self):
         return
 
     """ Implémenter l'option de rejet avec le nearest centroid (Devoir 1, #3) """
-    def classifier_nearest_centroid_avec_option_de_rejet(self):
+    def classifierNearestCentroidAvecOptionDeRejet(self):
         return
 
     """ Implémenter la méthode des k plus proche voisins (Devoir 2 #3) """
-    def classifier_k_plus_proche_voisins(self, k=3, weights_param='uniform'):
-        data = np.array(self.data[self.statistique])
-        target = np.array(self.data['target'])
-        loo = LeaveOneOut()
-        loo.get_n_splits(data)
-        print(target)
-        y_pred = []
-        for train_index, test_index in loo.split(data):
-            X_train, X_test = data[train_index], data[test_index]
-            y_train, _ = target[train_index], target[test_index]
+    def classifierKPlusProcheVoisins(self, k=3, weights_param='uniform'):
+        neigh = KNeighborsClassifier(n_neighbors=k, weights=weights_param)
+        neigh.fit(self.trainData[0], self.trainData[1])
 
-            neigh = KNeighborsClassifier(n_neighbors=k, weights=weights_param)
-            neigh.fit(X_train, y_train)
-            y_pred.append(neigh.predict(X_test)[0])
-        
-        return y_pred
+        return neigh.predict(self.testData[0])
+
+
+    """ Implémenter la méthode sklearn.tree.DecisionTreeClassifier"""
+    def classifieurDecisionTree(self, max_depth=5):
+        clf = DecisionTreeClassifier(max_depth = max_depth)
+        clf.fit(self.trainData[0], self.trainData[1])
+
+        return clf.predict(self.testData[0])
+
+    """ Implémenter la méthode sklearn.ensemble.RandomForestClassifier"""
+    def classifieurRandomDecisionTree(self, max_dept=5, n_estimator=10, max_features=1):
+        clf = RandomForestClassifier(max_depth=max_dept, n_estimators=n_estimator, max_features=max_features)
+        clf.fit(self.trainData[0], self.trainData[1])
+
+        return clf.predict(self.testData[0])
+
+    """ Implémenter la méthode sklearn.ensemble.AdaBoostClassifier"""
+    def classifieurAdaBoost(self, n_estimators=100, random_state=42):
+        clf = AdaBoostClassifier(n_estimators=n_estimators, random_state=random_state)
+        clf.fit(self.trainData[0], self.trainData[1])
+
+        return clf.predict(self.testData[0])
+
 
     """ Implémenter la méthode de vote avec les méthodes suivantes : 
         - classifieur_nearest_centroid
@@ -158,10 +172,34 @@ class Classifications:
         - classifieur_lineaire
         - classifieur_quadratique
         - classifieur_k_nearest_neighbour
+        - classifieurDecisionTree
+        - classifieurRandomDecisionTree
+        - classifieurAdaBoost
         1. aller chercher y_pred des classifieurs ci-haut
         2. prendre le y_pred le plus fréquent
         3. comparer à target
         4. calculer le score
     """
-    def methode_de_vote(self):
-        return
+    def methodeDeVote(self):
+        classifieurs = np.array([self.classifieurNearestCentroid(),
+                                 self.classifieurLineaire(), 
+                                 self.classifieurNoyauGaussien(),
+                                 self.classifeurQuadratique(), 
+                                 self.classifierKPlusProcheVoisins(k=3, weights_param='uniform'), 
+                                 self.classifieurDecisionTree(max_depth=5), 
+                                 self.classifieurRandomDecisionTree(max_dept=5, n_estimator=10, max_features=1), 
+                                 self.classifieurAdaBoost(n_estimators=100, random_state=42)])
+        classifeurs_name = ['classifieurNearestCentroid', 
+                            'classifieurLineaire', 
+                            'classifieurNoyauGaussien',
+                            'classifeurQuadratique', 
+                            'classifierKPlusProcheVoisins', 
+                            'classifieurDecisionTree',
+                            'classifieurRandomDecisionTree', 
+                            'classifieurAdaBoost']
+        
+        voteResults = []
+        for i in range(np.shape(classifieurs)[1]):
+            counts = np.bincount(classifieurs[:, i])
+            voteResults.append(np.argmax(counts))
+        return np.array(voteResults)
