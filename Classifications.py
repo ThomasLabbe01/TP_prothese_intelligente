@@ -77,18 +77,27 @@ class Classifications:
     """
     def matriceDeConfusion(self, predict_data, plot_figure = False):
         assert self.clfName != '', "Il faut d'abord faire une classification avec une méthode qui commence par 'classifieur'"
-
+        change_results = 0
         target = np.array(self.testData[1])
         classes = np.unique(target)
+        if np.min(classes) == 1:
+            classes = classes - 1  # Avec le dataset capgmyo, les classes vont de 1 à 8, ce qui fait un bug avec l'autre dataset qui va de 0 à 5
+            predict_data = predict_data - 1
+            change_results = 1
         postures = [f'Posture {i}' for i in classes]
         classScore = np.zeros((np.size(classes), np.size(classes)))
         for c in classes:
             class_c_index = np.where(predict_data == c)
             results = target[class_c_index]
             mouvement, count = np.unique(results, return_counts=True)
+            if change_results == 1:
+                mouvement -= 1
             for index, mvmnt in enumerate(mouvement):
                 classScore[c, mvmnt] = count[index]
-            classScore[c, :] *= 1/np.sum(classScore[c, :])
+            if np.size(count) == 0:  # Si on a trouvé aucun point qui correspond à la classe c, car les classifieurs ne sont pas adéquats
+                classScore[c, :] *= 1
+            else:
+                classScore[c, :] *= 1/np.size(count)
 
         if plot_figure == True:
             plt.rcParams.update({'font.size': 13})
@@ -207,15 +216,6 @@ class Classifications:
                                  self.classifieurDecisionTree(max_depth=5), 
                                  self.classifieurRandomDecisionTree(max_dept=5, n_estimator=10, max_features=1), 
                                  self.classifieurAdaBoost(n_estimators=100, random_state=42)])
-
-        classifeurs_name = ['classifieurNearestCentroid', 
-                            'classifieurLineaire', 
-                            'classifieurNoyauGaussien',
-                            'classifeurQuadratique', 
-                            'classifierKPlusProcheVoisins', 
-                            'classifieurDecisionTree',
-                            'classifieurRandomDecisionTree', 
-                            'classifieurAdaBoost']
         
         voteResults = []
         for i in range(np.shape(classifieurs)[1]):
