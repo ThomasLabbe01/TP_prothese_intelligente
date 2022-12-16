@@ -24,16 +24,16 @@ def runCapgmyoDataset():
     accessPath = 'all_data/data_CapgMyo/matlab_format'
     fileType = 'mat'
     emgMAT = DataProcessing(accessPath, fileType)
-    window_length = 950
-    emgMAT.formatMATFiles(window_length=950, name_of_txt_file = 'first_data_set_', overwrite = True)
+    window_length = 50
+    emgMAT.formatMATFiles(window_length=window_length, name_of_txt_file = 'first_data_set_', overwrite = False)
     emgMAT.normalizeSet()
-    #emgMAT.plotForBothDatasetsVerification(subject='1', feature='rms', k=3, ch0=8, ch1=72, classes=[1, 2, 3, 4, 5])
+    emgMAT.plotForBothDatasetsVerification(subject='1', feature='rms', k=3, ch0=8, ch1=72, classes=[1, 2, 3, 4, 5])
 
-    #classifications = Classifications(emgMAT.emg_data, subject='1', statistique='mav', window_length=window_length)
-    #classifications.data_segmentation(method='train_test_split', proportions=[0.5, 0.5, 0])
-    #predictions = classifications.classifieurMethodeDeVote()
-    #classifications.calculate_general_score(predictions)
-    #classScore = classifications.matriceDeConfusion(predict_data = predictions, plot_figure = True)
+    classifications = Classifications(emgMAT.emg_data, subject='1', statistique='mav', window_length=window_length)
+    classifications.data_segmentation(method='train_test_split', proportions=[0.5, 0.5, 0])
+    predictions = classifications.classifieurMethodeDeVote()
+    classifications.calculate_general_score(predictions)
+    classScore = classifications.matriceDeConfusion(predict_data = predictions, plot_figure = True)
 
 #runGel4072Dataset()
 runCapgmyoDataset()

@@ -176,6 +176,8 @@ class DataProcessing:
                         var_data += [self.findVariance(segment).tolist()]
                         sd_data += [self.findStandardDerivation(segment).tolist()]
 
+                    if np.isnan(mav_data).any():
+                        continue
 
                     emg_data[subject]['mav'].append(mav_data)
                     emg_data[subject]['rms'].append(rms_data)
@@ -220,6 +222,7 @@ class DataProcessing:
             y_train, y_test = target[train_index], target[test_index]
 
             neigh = KNeighborsClassifier(n_neighbors=k, weights=weigths_param)
+            print(np.shape(X_train))
             neigh.fit(X_train, y_train)
             y_pred = neigh.predict(X_test)
 
