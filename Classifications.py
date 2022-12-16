@@ -25,13 +25,14 @@ class Classifications:
         Est-ce qu'on peut faire du transfert de représentation pour réutiliser un réseau existant pour un sujet, et l'appliquer à un autre ?
         TO DO : https://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html#sphx-glr-auto-examples-classification-plot-classifier-comparison-py
         """
-    def __init__(self, data, subject, statistique):
+    def __init__(self, data, subject, statistique, window_length):
         """init class pour emg_data"""
         self.data = data[subject]
         self.subject = subject
         self.colors = ['#120bd6', '#00d600', '#Ff0000', '#Ffb300', '#Ff5900', '#541c00']
         self.statistique = statistique
         self.clfName = ''
+        self.window_length = window_length
 
     """ Fonction qui va ségmenter le jeu de données selon proportions.
         Si validation = True, size(proportions) = 3, [train, test, validation] 
@@ -90,12 +91,13 @@ class Classifications:
             classScore[c, :] *= 1/np.sum(classScore[c, :])
 
         if plot_figure == True:
+            plt.rcParams.update({'font.size': 13})
             fig, ax = plot_confusion_matrix(conf_mat=classScore,
                                             colorbar=True,
                                             show_absolute=False,
                                             show_normed=True,
                                             class_names=postures)
-            plt.title('Normalized confusion matrix with {:s}, Score total = {:.2f} %'.format(self.clfName, self.totalScore))
+            plt.title("Normalized confusion matrix with {:s}, Score total = {:.2f} % \n Temps d'acquisiton : {} ms".format(self.clfName, self.totalScore, self.window_length))
             plt.show()   
         return classScore
 
