@@ -17,30 +17,36 @@ def runGel4072Dataset():
     classifications.data_segmentation(method='train_test_split', proportions=[0.8, 0.2, 0])
     predictions = classifications.classifieurMethodeDeVote()
     classifications.calculate_general_score(predictions)
-    classScore = classifications.matriceDeConfusion(predict_data = predictions, plot_figure = True)
+    classScore, classBadMeasurements = classifications.matriceDeConfusion(predict_data = predictions, plot_figure = True)
 
 # Permet de charger les données du dataset Capgmyo provenant d'un seul utilisateur (fichiers .mat) et de les traiter.
 def runCapgmyoDataset():
     accessPath = 'all_data/data_CapgMyo/matlab_format'
     fileType = 'mat'
     emgMAT = DataProcessing(accessPath, fileType)
-    window_length = 50
-    emgMAT.formatMATFiles(window_length=window_length, name_of_txt_file = 'first_data_set_', overwrite = False)
+    window_length = 900
+    emgMAT.formatMATFiles(window_length=window_length, name_of_txt_file = 'data_set_all_patients_', overwrite = False)
     emgMAT.normalizeSet()
-    emgMAT.plotForBothDatasetsVerification(subject='1', feature='rms', k=3, ch0=8, ch1=72, classes=[1, 2, 3, 4, 5])
+    #emgMAT.plotForBothDatasetsVerification(subject='1', feature='rms', k=3, ch0=8, ch1=72, classes=[1, 2, 3, 4, 5])
 
     classifications = Classifications(emgMAT.emg_data, subject='1', statistique='mav', window_length=window_length)
-    classifications.data_segmentation(method='train_test_split', proportions=[0.5, 0.5, 0])
-    predictions = classifications.classifieurMethodeDeVote()
+    classifications.data_segmentation(method='train_test_split', proportions=[0.8, 0.2, 0])
+    predictions = classifications.classifieurRandomDecisionTree()
     classifications.calculate_general_score(predictions)
-    classScore = classifications.matriceDeConfusion(predict_data = predictions, plot_figure = True)
+    classScore, classBadMeasurements = classifications.matriceDeConfusion(predict_data = predictions, plot_figure = True)
 
 #runGel4072Dataset()
-runCapgmyoDataset()
+#runCapgmyoDataset()
 
 # Run fonctions dans analysis runGel4072Dataset
 accessPath = 'all_data/data_2_electrode_GEL_4072'
 fileType = 'csv'
 window_length = list(range(10, 200, 10))
-#calculate_and_plot_score_vs_window(accessPath=accessPath, fileType=fileType, window_length=window_length, plot_figure=True)
-#scores = calculate_and_plot_score_vs_feature(accessPath=accessPath, fileType=fileType, window_length=window_length, posture=2, plot_figure=True)
+#calculate_and_plot_score_vs_window(accessPath=accessPath, fileType=fileType, window_length=window_length, plot_score=False, plot_measurements=True)
+#scores = calculate_and_plot_score_vs_feature(accessPath=accessPath, fileType=fileType, window_length=window_length, posture=2, plot_score=False, plot_measurements=True)
+
+# Run fonctions dans analysis runGel4072Dataset
+accessPath = 'all_data/data_CapgMyo/matlab_format'
+fileType = 'mat'
+window_length = [50, 100, 150, 200, 250, 500]
+calculate_and_plot_score_vs_window(accessPath=accessPath, fileType=fileType, window_length=window_length, plot_score=True, plot_measurements=True)

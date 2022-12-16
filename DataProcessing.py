@@ -222,7 +222,6 @@ class DataProcessing:
             y_train, y_test = target[train_index], target[test_index]
 
             neigh = KNeighborsClassifier(n_neighbors=k, weights=weigths_param)
-            print(np.shape(X_train))
             neigh.fit(X_train, y_train)
             y_pred = neigh.predict(X_test)
 
@@ -355,7 +354,7 @@ class DataProcessing:
         self.classifierKPlusProcheVoisins(subject=subject, feature=feature, k=k)
         self.plotEMGSignalAndFFT(self.emg_data[subject].get('data')[0][0])
         self.plotMovementHistogram(subject)
-        self.plot2ElectrodeSet(subject=subject, classes=classes)
+        self.plot2ElectrodeSet(subject=subject, classes=classes, ch0=ch0, ch1=ch1)
 
         data_set = self.createTrainingSet(subject=subject, feature=feature)
 

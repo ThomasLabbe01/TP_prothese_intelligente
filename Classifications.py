@@ -86,6 +86,7 @@ class Classifications:
             change_results = 1
         postures = [f'Posture {i}' for i in classes]
         classScore = np.zeros((np.size(classes), np.size(classes)))
+        classBadMeasurements = np.zeros((np.size(classes), np.size(classes)))
         for c in classes:
             class_c_index = np.where(predict_data == c)
             results = target[class_c_index]
@@ -94,10 +95,12 @@ class Classifications:
                 mouvement -= 1
             for index, mvmnt in enumerate(mouvement):
                 classScore[c, mvmnt] = count[index]
+                if c != mvmnt:
+                    classBadMeasurements[c, c] += count[index]
             if np.size(count) == 0:  # Si on a trouvé aucun point qui correspond à la classe c, car les classifieurs ne sont pas adéquats
                 classScore[c, :] *= 1
             else:
-                classScore[c, :] *= 1/np.size(count)
+                classScore[c, :] *= 1/np.sum(classScore[c, :])
 
         if plot_figure == True:
             plt.rcParams.update({'font.size': 13})
@@ -108,7 +111,7 @@ class Classifications:
                                             class_names=postures)
             plt.title("Normalized confusion matrix with {:s}, Score total = {:.2f} % \n Temps d'acquisiton : {} ms".format(self.clfName, self.totalScore, self.window_length))
             plt.show()   
-        return classScore
+        return classScore, classBadMeasurements
 
 
     """ Fonction qui va faire une classification avec la méthode paramétrique NearestCentroid()
