@@ -4,6 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from useful_functions import printProgressBar
 
+
+""" Calculer et afficher la précision de tous les classements en fonction du temps de traitement pour un même feature
+        
+    Cette fonction va créer un graphique : score vs 
+    n_window pour les postures choisies
+"""
 def calculate_and_plot_score_vs_window(accessPath, fileType, window_length, plot_figure = False):
     scores = []
     colors = ['#120bd6', '#00d600', '#Ff0000', '#Ffb300', '#Ff5900', '#541c00']
@@ -32,6 +38,11 @@ def calculate_and_plot_score_vs_window(accessPath, fileType, window_length, plot
     
     return scores
 
+""" Calculer et afficher la précision d'un classement avec une certaine statistique en fonction du temps de traitement 
+        
+    Cette fonction va créer un graphique : score vs 
+    n_window pour les features choisis
+"""
 def calculate_and_plot_score_vs_feature(accessPath, fileType, window_length, posture=2, plot_figure = False):
     scores = {'mav' : [], 'rms' : [], 'var' : [], 'sd' : []}
     colors = ['#120bd6', '#00d600', '#Ff0000', '#Ffb300', '#Ff5900', '#541c00']
@@ -63,24 +74,3 @@ def calculate_and_plot_score_vs_feature(accessPath, fileType, window_length, pos
         plt.show()
     
     return scores
-
-class Analysis:
-
-    """ Calculer et afficher la précision d'un classement en fonction du temps de traitement 
-        Il serait mieux de créer cette fonction dans useful_functions, de faire une boucle qui va recréer un dataset avec n_window
-        et de recalculer le score avec le feature au choix
-        
-        Cette fonction va créer un graphique : score vs 
-        n_window pour les features choisis"""
-    def calculate_and_plot_score_vs_feature(self):
-
-        return
-
-    
-        """ Calculer et afficher la précision d'un classement en fonction du temps de traitement 
-        Il serait mieux de créer cette fonction dans useful_functions, de faire une boucle qui va recréer un dataset avec n_window
-        et de recalculer le score avec le feature au choix
-        
-        Cette fonction va créer un graphique : score vs n_window pour les features choisis"""
-    def calculate_and_plot_score_vs_subject_with_best_feature(self):
-        return
