@@ -41,6 +41,7 @@ def calculate_and_plot_score_vs_window(accessPath, fileType, window_length, plot
     badMeasurements = np.array(badMeasurements)
     
     if plot_score == True:
+        # Le fait d'avoir un plus grand sample pour des n_window plus petit fait en sorte que l'erreur relative est biaisée
         for c in range(np.shape(scores)[1]):
             if c > 5:
                 continue
@@ -96,6 +97,7 @@ def calculate_and_plot_score_vs_feature(accessPath, fileType, window_length, pos
         printProgressBar(index+1, len(window_length), prefix = 'calculate_and_plot_score_vs_feature in progress', suffix= 'Complete', length=50)
 
     if plot_score == True:
+        # Le fait d'avoir un plus grand sample pour des n_window plus petit fait en sorte que l'erreur relative est biaisée
         for index, c in enumerate(statistiques):
             scores_c = np.array(scores[c])[:, posture]  # numéro de la posture
             plt.plot(window_length, scores_c, color=colors[index], label=f'{c}', linewidth=3, marker='o')
