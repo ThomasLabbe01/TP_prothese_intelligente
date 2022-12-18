@@ -157,13 +157,17 @@ class Classifications:
     """ Implémenter un classifier linéaire avec svm """
     def classifieurLineaireSvm(self):
         svm= LinearSVC()
-        svm.f.fit(self.trainData[0], self.trainData[1])
+        svm.fit(self.trainData[0], self.trainData[1])
         self.clfName = 'classifeurSVMlineaire'
         return svm.predict(self.testData[0])
 
     """ Implémenter l'option de rejet avec le nearest centroid (Devoir 1, #3) """
     def classifierNearestCentroidAvecOptionDeRejet(self):
-        return
+        nearCentro= NearestCentroid()
+        nearCentro.fit(self.trainData[0], self.trainData[1])
+        self.clfName = 'classifeurNearestCentroide'
+        return nearCentro.predict(self.testData[0])
+        
 
     """ Implémenter la méthode des k plus proche voisins (Devoir 2 #3) """
     def classifierKPlusProcheVoisins(self, k=3, weights_param='uniform'):
