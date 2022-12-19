@@ -9,6 +9,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from torch import sigmoid
 from torch.optim import SGD
 from torch.utils.data import Dataset, DataLoader
 from torchvision.datasets import ImageFolder
@@ -74,34 +75,67 @@ def compute_accuracy(model, dataloader, device='cpu'):
 
     return (predictions_np == targets_np).mean()
 
+class formatGestureRecognitionDataset(Dataset):
+
+    def __init__(self, dataset):
+        super().__init__()
+        self.targets = np.array(dataset[1])
+        data = []
+        for i, value in enumerate(dataset[0]):
+            value = value.astype(np.float32)
+            data.append((torch.reshape(torch.from_numpy(value), (1, 8, 4)), torch.tensor(self.targets[i])))
+        self.data = data
+    
+
+    def __getitem__(self, index):
+        data = self.data[index][0]
+        target = self.targets[index]
+        return data, target
+    
+
+    def __len__(self):
+        return len(self.data)
+
 class GestureRecognitionCNN(nn.Module):
     """
     Cette classe définit un réseau convolutionnel permettant de classifier
     des mouvements de mains
     https://pubmed.ncbi.nlm.nih.gov/31765319/
     """
-
+    
     def __init__(self):
         super().__init__()
         # Initialiser ici les modules contenant des paramètres à optimiser.
-        self.C1 = nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, stride=2, bias=False)
-        self.BN2 = nn.BatchNorm2d(num_features=32)
+        self.BN1 = nn.BatchNorm2d(num_features=1)
+        self.C2 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3, stride=1 ,bias=False, padding='same')
+        self.BN3 = nn.BatchNorm2d(num_features=32)
         
-        self.C3 = nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, stride=2, bias=False)
-        self.BN4 = nn.BatchNorm2d(num_features=32)
+        self.C4 = nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, stride=1, bias=False, padding='same')
+        self.BN5 = nn.BatchNorm2d(num_features=32)
         
-        self.C5 = nn.Conv2d(in_channels=32, out_channels=32, kernel_size=5, stride=2, bias=False)
-        self.BN6 = nn.BatchNorm2d(num_features=32)
+        self.C6 = nn.Conv2d(in_channels=32, out_channels=32, kernel_size=5, stride=1, bias=False, padding='same')
+        self.BN7 = nn.BatchNorm2d(num_features=32)
         
-        self.FC7 = nn.Linear(in_features=32, out_features=6, bias=False)  # out_features = nombre de classes
+        self.FC8 = nn.Linear(in_features=32, out_features=256, bias=False)
+        self.D9 = nn.Dropout(p=0.5, inplace=False) 
+
+        self.output = nn.Linear(in_features=256, out_features=6, bias=False)  # out_features = nombre de classes
+    
     
     def forward(self, x):
         ## Effectuer l'inférence du réseau.
-        x = F.relu(self.BN2(self.C1(x)))
-        x = F.relu(self.BN4(self.C3(x)))
-        x = F.relu(self.BN6(self.C5(x)))
-        x = F.relu(self.FC7(x))
-        return x
+        #y = F.relu(self.BN1(x))
+        y = F.relu(self.BN3(self.C2(x)))
+        y = F.relu(self.BN5(self.C4(y)))
+        y = F.relu(self.BN7(self.C6(y)))
+        y = y.view(-1, 32)
+        y = F.relu(self.FC8(y))
+        y = self.D9(y)
+        return self.output(y)
+
+
+    
+
 
 # Initialisation des paramètres d'entraînement
 # Paramètres recommandés:
@@ -122,15 +156,128 @@ emgCSV = DataProcessing(accessPath, fileType)
 emgCSV.formatCSVFiles(window_length=window_length)
 classifications = Classifications(emgCSV.emg_data, subject='0', statistique='mav', window_length=window_length)
 classifications.data_segmentation(method='train_test_split', proportions=[0.8, 0.2, 0])
-train_set = classifications.trainData
-test_set = classifications.testData
-print(test_set)
 
-
+# Format data
+trainData = formatGestureRecognitionDataset(classifications.trainData)
+testData = formatGestureRecognitionDataset(classifications.testData)
 # Création du sampler avec les classes balancées
-balanced_train_sampler = create_balanced_sampler(train_set)
-balanced_test_sampler = create_balanced_sampler(test_set)
+balanced_train_sampler = create_balanced_sampler(trainData)
+balanced_test_sampler = create_balanced_sampler(testData)
 
 # Création du dataloader d'entraînement
-train_loader = Dataloader(train_set, batch_size=batch_size, sampler=balanced_train_sampler)
-test_loader = DataLoader(test_set, batch_size=batch_size, sample=balanced_test_sampler)
+train_loader = DataLoader(trainData, batch_size=batch_size, sampler=balanced_train_sampler)
+test_loader = DataLoader(testData, batch_size=batch_size, sampler=balanced_test_sampler)
+
+def compute_confusion_matrix(model, dataloader, device):
+    
+    # Mettre le model en mode évaluation
+    # Calculer toutes les prédictions sur le dataloader
+    all_predictions = []
+    all_targets = []
+    for i_batch, batch in enumerate(dataloader):
+        images, targets = batch
+        images = images.to(device)
+        targets = targets.to(device)
+        with torch.no_grad():
+            predictions = model(images)
+        all_predictions.append(predictions.cpu().np())
+        all_targets.append(targets.cpu().np())
+
+    predictions_np = np.concatenate(all_predictions)
+    targets_np = np.concatenate(all_targets)
+
+    # ******
+    # Assigner la classe 0 ou 1 aux prédictions
+    # Calculer la matrice de confusion. Attention de bien avoir
+    # une matrice 2 par 2 en sortie
+    matrix = np.zeros((2, 2))
+    results = np.rint(predictions_np).reshape(-1).astype(int)
+    for i in range(len(targets_np)):
+        if targets_np[i] == results[i]:
+            matrix[results[i]][targets_np[i]] += 1
+        else:
+            matrix[results[i]][targets_np[i]] += 1
+            
+
+    return matrix  # Retourner matrice de confusion
+
+
+# Instancier votre réseau GestureRecognitionCNN dans une variable nommée "model"
+model = GestureRecognitionCNN()
+# ******
+
+# Transférer le réseau sur GPU ou CPU en fonction de la variable "DEVICE"
+# Transfer the network to GPU or CPU depending on the "DEVICE" variable
+model.to(DEVICE)
+
+# Instancier une fonction d'erreur BinaryCrossEntropy
+# et la mettre dans une variable nommée criterion
+criterion = nn.BCELoss()
+
+# Instancier l'algorithme d'optimisation SGD
+# Ne pas oublier de lui donner les hyperparamètres
+# d'entraînement : learning rate et momentum!
+optimisation = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
+
+
+# Mettre le réseau en mode entraînement
+# Set the network in training mode
+# ******
+model.train()
+# Boucle d'entraînement / Training loop
+for i_epoch in range(nb_epoch):
+
+    start_time, train_losses = time.time(), []
+    for i_batch, batch in enumerate(train_loader):
+        images, targets = batch
+        targets = targets.type(torch.FloatTensor).unsqueeze(-1)
+        print(images.size())
+        print(targets)
+
+        images = images.to(DEVICE)
+        targets = targets.to(DEVICE)
+        
+        # *** TODO ***
+        # Mettre les gradients à zéro
+        optimisation.zero_grad()
+
+        # Calculer:
+        # 1. l'inférence dans une variable "predictions"
+        # 2. l'erreur dans une variable "loss"
+        predictions = model(images)
+        predictions = torch.argmax(predictions, dim=1)
+        print(predictions)
+        loss = criterion(predictions, targets)
+
+        # Rétropropager l'erreur et effectuer
+        # une étape d'optimisation
+        loss.backward()
+        optimisation.step()
+        
+        # Accumulation du loss de la batch
+        # Accumulating batch loss
+        train_losses.append(loss.item())
+
+    print(' [-] epoch {:4}/{:}, train loss {:.6f} in {:.2f}s'.format(
+        i_epoch+1, nb_epoch, np.mean(train_losses), time.time()-start_time))
+
+# Affichage du score en test / Display test score
+test_acc = compute_accuracy(model, test_loader, DEVICE)
+print(' [-] test acc. {:.6f}%'.format(test_acc * 100))
+
+# Affichage de la matrice de confusion / Display confusion matrix
+matrix = compute_confusion_matrix(model, test_loader, DEVICE)
+
+# Libère la cache sur le GPU *important sur un cluster de GPU*
+# Free GPU cache *important on a GPU cluster*
+torch.cuda.empty_cache()
+
+# *** TODO ***
+# Entrez vos commentaires de la discussion ici.
+# Enter your discussion comments here
+discussion = f"Résultats prédit par la matrice : {100*np.round((matrix[0][0] + matrix[1][1])/(np.sum(matrix.reshape(-1))), 2)}%. Ainsi, le score prédit par la matrice est meilleur que celui indiqué par compute_accuracy"
+# ******
+
+frame = {"Comments":[discussion]}
+df = pandas.DataFrame(frame)
+display.display(df)

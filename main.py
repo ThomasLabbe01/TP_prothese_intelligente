@@ -15,9 +15,10 @@ def runGel4072Dataset():
 
     classifications = Classifications(emgCSV.emg_data, subject='0', statistique='mav', window_length=window_length)
     classifications.data_segmentation(method='train_test_split', proportions=[0.8, 0.2, 0])
-    predictions = classifications.classifieurMethodeDeVote()
-    classifications.calculate_general_score(predictions)
-    classScore, classBadMeasurements = classifications.matriceDeConfusion(predict_data = predictions, plot_figure = True)
+    print(len(classifications.trainData[1]))
+    #predictions = classifications.classifieurMethodeDeVote()
+    #classifications.calculate_general_score(predictions)
+    #classScore, classBadMeasurements = classifications.matriceDeConfusion(predict_data = predictions, plot_figure = True)
 
 # Permet de charger les données du dataset Capgmyo provenant d'un seul utilisateur (fichiers .mat) et de les traiter.
 def runCapgmyoDataset():
@@ -35,7 +36,7 @@ def runCapgmyoDataset():
     classifications.calculate_general_score(predictions)
     classScore, classBadMeasurements = classifications.matriceDeConfusion(predict_data = predictions, plot_figure = True)
 
-#runGel4072Dataset()
+runGel4072Dataset()
 #runCapgmyoDataset()
 
 # Run fonctions dans analysis runGel4072Dataset
@@ -49,4 +50,4 @@ window_length = list(range(10, 200, 10))
 accessPath = 'all_data/data_CapgMyo/matlab_format'
 fileType = 'mat'
 window_length = [50, 100, 150, 200, 250, 500]
-calculate_and_plot_score_vs_window(accessPath=accessPath, fileType=fileType, window_length=window_length, plot_score=True, plot_measurements=True)
+#calculate_and_plot_score_vs_window(accessPath=accessPath, fileType=fileType, window_length=window_length, plot_score=True, plot_measurements=True)
