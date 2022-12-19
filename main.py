@@ -7,11 +7,11 @@ from Analysis import calculate_and_plot_score_vs_feature
 def runGel4072Dataset():
     accessPath = 'all_data/data_2_electrode_GEL_4072'
     fileType = 'csv'
-    window_length = 25
+    window_length = 200
     emgCSV = DataProcessing(accessPath, fileType)
     emgCSV.formatCSVFiles(window_length=window_length)
     emgCSV.normalizeSet()
-    #emgCSV.plotForBothDatasetsVerification(subject='0', feature='mav', k=1, ch0=6, ch1=17, classes='all')
+    emgCSV.plotForBothDatasetsVerification(subject='0', feature='mav', k=1, ch0=6, ch1=17, classes='all')
 
     classifications = Classifications(emgCSV.emg_data, subject='0', statistique='mav', window_length=window_length)
     classifications.data_segmentation(method='train_test_split', proportions=[0.8, 0.2, 0])
