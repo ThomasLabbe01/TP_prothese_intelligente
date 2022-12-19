@@ -6,6 +6,7 @@ from useful_functions import printProgressBar
 
 
 
+
 """ Calculer et afficher la précision de tous les classements en fonction du temps de traitement pour un même feature
         
     Cette fonction va créer un graphique : score vs 
@@ -187,8 +188,6 @@ def optimisationClassifieurKPPV():
     plt.show()
 
 
-
-
 def optimisationClassifieurAda():
     loadData()
     n_estimators=[10,50,100,200,500,1000]
@@ -238,8 +237,9 @@ def optimisationClassifieurAda():
 #     loadData()
 #     criterion = ['gini', 'entropy','log_loss']
 #     max_depth = [2,4,6,8,10,12]
-#     # choix des postures
-
+#     #choix des postures
+#     param =dict(tree_criterion=criterion,
+#                       tree_max_depth=max_depth)
 #     posture=[1,2,3,4,5]
 #     posture_bis=[1,2,3,4,5]
 
@@ -254,16 +254,16 @@ def optimisationClassifieurAda():
 #         print(posture1,posture2)
        
 
-#     scoresAdaPosture1 = []
-#     scoresAdaPosture2 = []
-#     scoresAdaPosture3 = []
-#     scoresAdaPosture4 = []
-#     scoresAdaPosture5 = []
-#     pipe =Pipeline
-#     for config in max_depth:
-#         predictions = Classifications.ClassifieurAdaBoost(max_depth=config)
-#         classScore, _ = Classifications.matriceDeConfusion(predictions)
-#         if criterion
+#     scoresPosture1 = []
+#     scoresPosture2 = []
+#     scoresPosture3 = []
+#     scoresPosture4 = []
+#     scoresPosture5 = []
+#     for criter in criterion :
+#         for config in max_depth:
+#             predictions = Classifications.ClassifieurAdaBoost(max_depth=config)
+#             classScore, _ = Classifications.matriceDeConfusion(predictions)
+
 #         scoresAdaPosture1.append(classScore[1, 1])  
 #         scoresAdaPosture2.append(classScore[2, 2])
 #         scoresAdaPosture3.append(classScore[3, 3])
