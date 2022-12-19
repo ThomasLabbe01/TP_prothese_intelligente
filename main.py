@@ -16,9 +16,9 @@ def runGel4072Dataset():
     classifications = Classifications(emgCSV.emg_data, subject='0', statistique='mav', window_length=window_length)
     classifications.data_segmentation(method='train_test_split', proportions=[0.8, 0.2, 0])
     print(len(classifications.trainData[1]))
-    #predictions = classifications.classifieurMethodeDeVote()
-    #classifications.calculate_general_score(predictions)
-    #classScore, classBadMeasurements = classifications.matriceDeConfusion(predict_data = predictions, plot_figure = True)
+    predictions = classifications.classifieurMethodeDeVote()
+    classifications.calculate_general_score(predictions)
+    classScore, classBadMeasurements = classifications.matriceDeConfusion(predict_data = predictions, plot_figure = True)
 
 # Permet de charger les données du dataset Capgmyo provenant d'un seul utilisateur (fichiers .mat) et de les traiter.
 def runCapgmyoDataset():
@@ -32,7 +32,7 @@ def runCapgmyoDataset():
 
     classifications = Classifications(emgMAT.emg_data, subject='1', statistique='mav', window_length=window_length)
     classifications.data_segmentation(method='train_test_split', proportions=[0.8, 0.2, 0])
-    predictions = classifications.classifieurRandomDecisionTree()
+    predictions = classifications.classifierKPlusProcheVoisins()
     classifications.calculate_general_score(predictions)
     classScore, classBadMeasurements = classifications.matriceDeConfusion(predict_data = predictions, plot_figure = True)
 

@@ -165,7 +165,7 @@ class Classifications:
 
     """ Implémenter l'option de rejet avec le nearest centroid (Devoir 1, #3) """
     def classifierNearestCentroidAvecOptionDeRejet(self,shrink_param= 0.5):
-        nearCentro= NearestCentroid(shrink_threshol=shrink_param)
+        nearCentro= NearestCentroid(shrink_threshold=shrink_param)
         nearCentro.fit(self.trainData[0], self.trainData[1])
 
         self.clfName = 'classifeurNearestCentroide'
