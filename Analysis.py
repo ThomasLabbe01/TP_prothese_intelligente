@@ -121,10 +121,8 @@ def calculate_and_plot_score_vs_feature(accessPath, fileType, window_length, pos
     
     return scores
 
-## Optimisation
-
-def optimisationClassifieurKPPV():
-    ## load data
+## load data
+def loadData():
     accessPath = 'all_data/data_2_electrode_GEL_4072'
     fileType = 'csv'
     window_length = 75
@@ -134,6 +132,9 @@ def optimisationClassifieurKPPV():
     classifications = Classifications(emgCSV.emg_data, subject='0', statistique='mav', window_length=window_length)
     classifications.data_segmentation(method='train_test_split', proportions=[0.8, 0.2, 0])
 
+## Optimisation
+def optimisationClassifieurKPPV():
+    loadData()
     # Paramètres à optimiser : 
     k = [1, 3, 5, 7, 11, 13, 15, 25, 35, 45]
     weights_param = ['uniform', 'distance']
@@ -178,4 +179,50 @@ def optimisationClassifieurKPPV():
 
 
 
-optimisationClassifieurKPPV()
+def optimisationClassifieurAda():
+    loadData()
+    n_estimators=[10,50,100,200,500,1000]
+    # choix des postures
+    posture=[1,2,3,4,5]
+    for posture1,posture2 in posture: 
+        print(posture1)
+
+    scoresWeightUniformPosture2 = []
+    scoresWeightDistancePosture2 = []
+    scoresWeightUniformPosture4 = []
+    scoresWeightDistancePosture4 = []
+    for config in n_estimators:
+        predictions = classifications.AdaBoostClassifier(n_estimators=config, random_state=42)
+        classScore, _ = classifications.matriceDeConfusion(predictions)
+       #     scoresWeightUniformPosture2.append(classScore[2, 2])
+       #     scoresWeightUniformPosture4.append(classScore[4, 4])
+       # if weights_param[config[0]] == 'distance':
+        #    scoresWeightDistancePosture2.append(classScore[2, 2])
+        #    scoresWeightDistancePosture4.append(classScore[4, 4])
+    
+    # figure
+
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111)
+
+    # ax.set_title('''Comparaison de la performance pour le classifier Adaboost \n pour les postures 2 et 4 du dataset GEL-4072''')  # À modifier / to be modified
+    # ax.plot(k, scoresWeightDistancePosture2, 'r--', label="Distance Posture 2") # À compléter / to be completed
+    # ax.plot(k, scoresWeightUniformPosture2, 'b--', label="Uniform Posture 2")  # À compléter / to be completed
+    # ax.plot(k, scoresWeightDistancePosture4, 'r-', label="Distance Posture 4") # À compléter / to be completed
+    # ax.plot(k, scoresWeightUniformPosture4, 'b-', label="Uniform Posture 4")  # À compléter / to be completed
+    # ax.set_xticks(k, k)
+    # ax.grid(axis='x')
+    # ax.set_xlabel("Values of K")
+    # ax.set_ylabel("Accuracy [-]")
+    # ax.legend()
+
+    plt.show()
+
+
+optimisationClassifieurAda()
+
+#def optimisationClassifieurDecisionTree():
+    
+#def optimisationClassifieurRandDecisionTree():
+    
+#def classifierNearestCentroidAvecOptionDeRejet():
