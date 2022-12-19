@@ -151,7 +151,7 @@ class Classifications:
     def classifeurQuadratique(self):
         clf = QuadraticDiscriminantAnalysis()
         clf.fit(self.trainData[0], self.trainData[1])
-
+        
         self.clfName = 'classifeurQuadratique'
         return clf.predict(self.testData[0])
     
@@ -159,6 +159,7 @@ class Classifications:
     def classifieurLineaireSvm(self):
         svm= LinearSVC()
         svm.fit(self.trainData[0], self.trainData[1])
+
         self.clfName = 'classifeurSVMlineaire'
         return svm.predict(self.testData[0])
 
@@ -166,6 +167,7 @@ class Classifications:
     def classifierNearestCentroidAvecOptionDeRejet(self,shrink_param= 0.5):
         nearCentro= NearestCentroid(shrink_threshol=shrink_param)
         nearCentro.fit(self.trainData[0], self.trainData[1])
+
         self.clfName = 'classifeurNearestCentroide'
         return nearCentro.predict(self.testData[0])
         
