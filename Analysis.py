@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from useful_functions import printProgressBar
 
 
+
 """ Calculer et afficher la précision de tous les classements en fonction du temps de traitement pour un même feature
         
     Cette fonction va créer un graphique : score vs 
@@ -209,22 +210,22 @@ def optimisationClassifieurAda():
     scoresAdaPosture5 = []
 
     for config in n_estimators:
-        predictions = classifications.AdaBoostClassifier(n_estimators=config, random_state=42)
+        predictions = classifications.ClassifieurAdaBoost(n_estimators=config, random_state=42)
         classScore, _ = classifications.matriceDeConfusion(predictions)
-        scoresAdaPosture1.append(classScore[2, 2])  
+        scoresAdaPosture1.append(classScore[1, 1])  
         scoresAdaPosture2.append(classScore[2, 2])
-        scoresAdaPosture3.append(classScore[2, 2])
-        scoresAdaPosture4.append(classScore[2, 2])
-        scoresAdaPosture5.append(classScore[2, 2])
-
-      
-    
+        scoresAdaPosture3.append(classScore[3, 3])
+        scoresAdaPosture4.append(classScore[4, 4])
+        scoresAdaPosture5.append(classScore[5, 5])
     # figure
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.set_title('''Comparaison de la performance pour le classifier Adaboost \n pour les postures 2 et 4 du dataset GEL-4072''')  # À modifier / to be modified
-    ax.plot(k, scoresAdaPosture2, 'b--', label="Posture 2")  # À compléter / to be completed
-    ax.plot(k, scoresAdaPosture4, 'r--', label="Uniform Posture 4")  # À compléter / to be completed
+    ax.set_title('''Comparaison de la performance pour le classifier Adaboost \n pour les 5 postures du dataset GEL-4072''')  # À modifier / to be modified
+    ax.plot(n_estimators, scoresAdaPosture1, 'g--', label="Posture 1")
+    ax.plot(n_estimators, scoresAdaPosture2, 'b--', label="Posture 2")  
+    ax.plot(n_estimators, scoresAdaPosture3, 'o--', label="Posture 3")
+    ax.plot(n_estimators, scoresAdaPosture4, 'r--', label="Posture 4") 
+    ax.plot(n_estimators, scoresAdaPosture5, 'y^', label="Posture 5") 
     ax.set_xticks(n_estimators, n_estimators)
     ax.grid(axis='x')
     ax.set_xlabel("Values of estimators")
@@ -238,7 +239,7 @@ def optimisationClassifieurDecisionTree():
     criterion = ['gini', 'entropy','log_loss']
     max_depth = [2,4,6,8,10,12]
     # choix des postures
-    posture=[1,2,3,4,5]
+
     posture=[1,2,3,4,5]
     posture_bis=[1,2,3,4,5]
 
@@ -250,36 +251,37 @@ def optimisationClassifieurDecisionTree():
     posture_compare.remove((5,5))
 
     for posture1,posture2 in posture: 
-        print(posture1)
+        print(posture1,posture2)
+       
 
-    scoresWeightUniformPosture2 = []
-    scoresWeightDistancePosture2 = []
-    scoresWeightUniformPosture4 = []
-    scoresWeightDistancePosture4 = []
-    for config in n_estimators:
-        predictions = classifications.AdaBoostClassifier(n_estimators=config, random_state=42)
+    scoresAdaPosture1 = []
+    scoresAdaPosture2 = []
+    scoresAdaPosture3 = []
+    scoresAdaPosture4 = []
+    scoresAdaPosture5 = []
+
+    for config in max_depth:
+        predictions = classifications.ClassifieurAdaBoost(n_estimators=config, random_state=42)
         classScore, _ = classifications.matriceDeConfusion(predictions)
-       #     scoresWeightUniformPosture2.append(classScore[2, 2])
-       #     scoresWeightUniformPosture4.append(classScore[4, 4])
-       # if weights_param[config[0]] == 'distance':
-        #    scoresWeightDistancePosture2.append(classScore[2, 2])
-        #    scoresWeightDistancePosture4.append(classScore[4, 4])
-    
+        scoresAdaPosture1.append(classScore[1, 1])  
+        scoresAdaPosture2.append(classScore[2, 2])
+        scoresAdaPosture3.append(classScore[3, 3])
+        scoresAdaPosture4.append(classScore[4, 4])
+        scoresAdaPosture5.append(classScore[5, 5])
     # figure
-
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111)
-
-    # ax.set_title('''Comparaison de la performance pour le classifier Adaboost \n pour les postures 2 et 4 du dataset GEL-4072''')  # À modifier / to be modified
-    # ax.plot(k, scoresWeightDistancePosture2, 'r--', label="Distance Posture 2") # À compléter / to be completed
-    # ax.plot(k, scoresWeightUniformPosture2, 'b--', label="Uniform Posture 2")  # À compléter / to be completed
-    # ax.plot(k, scoresWeightDistancePosture4, 'r-', label="Distance Posture 4") # À compléter / to be completed
-    # ax.plot(k, scoresWeightUniformPosture4, 'b-', label="Uniform Posture 4")  # À compléter / to be completed
-    # ax.set_xticks(k, k)
-    # ax.grid(axis='x')
-    # ax.set_xlabel("Values of K")
-    # ax.set_ylabel("Accuracy [-]")
-    # ax.legend()
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_title('''Comparaison de la performance pour le classifier Adaboost \n pour les 5 postures du dataset GEL-4072''')  # À modifier / to be modified
+    ax.plot(n_estimators, scoresAdaPosture1, 'g--', label="Posture 1")
+    ax.plot(n_estimators, scoresAdaPosture2, 'b--', label="Posture 2")  
+    ax.plot(n_estimators, scoresAdaPosture3, 'o--', label="Posture 3")
+    ax.plot(n_estimators, scoresAdaPosture4, 'r--', label="Posture 4") 
+    ax.plot(n_estimators, scoresAdaPosture5, 'y^', label="Posture 5") 
+    ax.set_xticks(n_estimators, n_estimators)
+    ax.grid(axis='x')
+    ax.set_xlabel("Values of estimators")
+    ax.set_ylabel("Accuracy [-]")
+    ax.legend()
 
     plt.show()
     
