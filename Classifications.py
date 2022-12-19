@@ -156,7 +156,10 @@ class Classifications:
     
     """ Implémenter un classifier linéaire avec svm """
     def classifieurLineaireSvm(self):
-        return
+        svm= LinearSVC()
+        svm.f.fit(self.trainData[0], self.trainData[1])
+        self.clfName = 'classifeurSVMlineaire'
+        return svm.predict(self.testData[0])
 
     """ Implémenter l'option de rejet avec le nearest centroid (Devoir 1, #3) """
     def classifierNearestCentroidAvecOptionDeRejet(self):
