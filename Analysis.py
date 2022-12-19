@@ -120,7 +120,7 @@ def calculate_and_plot_score_vs_feature(accessPath, fileType, window_length, pos
         plt.show()
     
     return scores
-
+"""
 ## load data
 def loadData():
     accessPath = 'all_data/data_2_electrode_GEL_4072'
@@ -131,26 +131,25 @@ def loadData():
     emgCSV.normalizeSet()
     classifications = Classifications(emgCSV.emg_data, subject='0', statistique='mav', window_length=window_length)
     classifications.data_segmentation(method='train_test_split', proportions=[0.8, 0.2, 0])
+"""
 
 ## Optimisation
 def optimisationClassifieurKPPV():
-    loadData()
+    accessPath = 'all_data/data_2_electrode_GEL_4072'
+    fileType = 'csv'
+    window_length = 75
+    emgCSV = DataProcessing(accessPath, fileType)
+    emgCSV.formatCSVFiles(window_length=window_length)
+    emgCSV.normalizeSet()
+    classifications = Classifications(emgCSV.emg_data, subject='0', statistique='mav', window_length=window_length)
+    classifications.data_segmentation(method='train_test_split', proportions=[0.8, 0.2, 0])
+    
     # Paramètres à optimiser : 
     k = [1, 3, 5, 7, 11, 13, 15, 25, 35, 45]
     weights_param = ['uniform', 'distance']
     weights_index = [0, 1]
     neighbors_weights_list = [(i, j) for i in weights_index for j in k]
 
-    # choix des postures
-    #posture=[1,2,3,4,5]
-    #posture_bis=[1,2,3,4,5]
-
-    #posture_compare= [(i,j) for i in posture for j in posture_bis]
-    #posture_compare.remove((1,1))
-    #posture_compare.remove((2,2))
-    #posture_compare.remove((3,3))
-    #posture_compare.remove((4,4))
-    #posture_compare.remove((5,5))
     posture1, posture2 = 2, 4
 
     scoresWeightUniformPosture2 = []
@@ -185,9 +184,11 @@ def optimisationClassifieurKPPV():
 
     plt.show()
 
+optimisationClassifieurKPPV()
 
 
-
+# Do not evaluate the following code
+"""
 def optimisationClassifieurAda():
     loadData()
     n_estimators=[10,50,100,200,500,1000]
@@ -279,3 +280,4 @@ def optimisationClassifieurDecisionTree():
 #def optimisationClassifieurRandDecisionTree():
     
 #def classifierNearestCentroidAvecOptionDeRejet():
+"""

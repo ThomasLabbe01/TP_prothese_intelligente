@@ -104,37 +104,6 @@ class GestureRecognitionCNN(nn.Module):
     des mouvements de mains
     https://pubmed.ncbi.nlm.nih.gov/31765319/
     """
-    """
-    def __init__(self):
-        super().__init__()
-        # Initialiser ici les modules contenant des paramètres à optimiser.
-        self.BN1 = nn.BatchNorm2d(num_features=1)
-        self.C2 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=(3, 3), bias=False, padding='same')
-        self.BN3 = nn.BatchNorm2d(num_features=32)
-        
-        self.C4 = nn.Conv2d(in_channels=32, out_channels=32, kernel_size=(3, 3), bias=False, padding='same')
-        self.BN5 = nn.BatchNorm2d(num_features=32)
-        
-        self.C6 = nn.Conv2d(in_channels=32, out_channels=32, kernel_size=(5, 5), bias=False, padding='same')
-        self.BN7 = nn.BatchNorm2d(num_features=32)
-        
-        self.FC8 = nn.Linear(in_features=32, out_features=256, bias=False)
-        self.D9 = nn.Dropout(p=0.5, inplace=False) 
-
-        self.output = nn.Linear(in_features=256, out_features=6, bias=False)  # out_features = nombre de classes
-    
-    
-    def forward(self, x):
-        ## Effectuer l'inférence du réseau.
-        y = F.relu(self.BN1(x))
-        y = F.relu(self.BN3(self.C2(y)))
-        y = F.relu(self.BN5(self.C4(y)))
-        y = F.relu(self.BN7(self.C6(y)))
-        y = y.view(-1, 32)
-        y = F.relu(self.FC8(y))
-        y = self.D9(y)
-        return self.output(y)"""
-    
     def __init__(self, num_classes):
         super().__init__()
         self.layer1 = nn.Sequential(
