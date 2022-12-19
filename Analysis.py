@@ -220,12 +220,11 @@ def optimisationClassifieurAda():
       
     
     # figure
-
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.set_title('''Comparaison de la performance pour le classifier Adaboost \n pour les postures 2 et 4 du dataset GEL-4072''')  # À modifier / to be modified
     ax.plot(k, scoresAdaPosture2, 'b--', label="Posture 2")  # À compléter / to be completed
-    ax.plot(k, scoresAdaPosture4, 'b-', label="Uniform Posture 4")  # À compléter / to be completed
+    ax.plot(k, scoresAdaPosture4, 'r--', label="Uniform Posture 4")  # À compléter / to be completed
     ax.set_xticks(n_estimators, n_estimators)
     ax.grid(axis='x')
     ax.set_xlabel("Values of estimators")
