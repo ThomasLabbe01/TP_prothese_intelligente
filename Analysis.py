@@ -146,6 +146,11 @@ def optimisationClassifieurKPPV():
     #posture_bis=[1,2,3,4,5]
 
     #posture_compare= [(i,j) for i in posture for j in posture_bis]
+    #posture_compare.remove((1,1))
+    #posture_compare.remove((2,2))
+    #posture_compare.remove((3,3))
+    #posture_compare.remove((4,4))
+    #posture_compare.remove((5,5))
     posture1, posture2 = 2, 4
 
     scoresWeightUniformPosture2 = []
