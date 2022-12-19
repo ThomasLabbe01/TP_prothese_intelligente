@@ -5,6 +5,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticD
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import NearestCentroid, KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.model_selection import RepeatedKFold, train_test_split, LeaveOneOut
 from DataProcessing import DataProcessing
@@ -219,7 +220,9 @@ class Classifications:
     """
     def classifieurMethodeDeVote(self):
         classifieurs = np.array([self.classifieurNearestCentroid(),
+                                 self.classifierNearestCentroidAvecOptionDeRejet(shrink_param= 0.5),
                                  self.classifieurLineaire(), 
+                                 self.classifieurLineaireSvm(),
                                  self.classifieurNoyauGaussien(),
                                  self.classifeurQuadratique(), 
                                  self.classifierKPlusProcheVoisins(k=3, weights_param='uniform'), 
